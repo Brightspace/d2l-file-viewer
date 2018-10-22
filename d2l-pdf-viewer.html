@@ -15,11 +15,9 @@
 			}
 		</style>
 
-		<body>
-			<div id="viewerContainer">
-				<div id="viewer" class="pdfViewer"></div>
-			</div>
-		</body>
+		<div id="viewerContainer">
+			<div id="viewer" class="pdfViewer"></div>
+		</div>
 	</template>
 	<script>
 		/* global pdfjsViewer, pdfjsLib */
@@ -36,8 +34,7 @@
 			properties: {
 				fileSrc: {
 					type: String
-				},
-				isReady: false
+				}
 			},
 			ready() {
 				var container = this.$.viewerContainer;

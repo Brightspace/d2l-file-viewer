@@ -11,13 +11,13 @@
 			}
 		</style>
 		<body>
-			<template is="dom-if" if="[[showVideo]]">
+			<template is="dom-if" if="[[_showVideo]]">
 				<d2l-video src="[[fileSrc]]" auto-load></d2l-video>
 			</template>
-			<template is="dom-if" if="[[showImage]]">
+			<template is="dom-if" if="[[_showImage]]">
 				<div><img ref="image" src="[[fileSrc]]"></div>
 			</template>
-			<template is="dom-if" if="[[showPDF]]">
+			<template is="dom-if" if="[[_showPDF]]">
 				<d2l-pdf-viewer file-src="[[fileSrc]]"></d2l-pdf-viewer>
 			</template>
 		</body>
@@ -40,35 +40,35 @@
 				fileSrc: {
 					type: String
 				},
-				showVideo: {
+				_showVideo: {
 					type:Boolean,
 					value: false
 				},
-				showImage: {
+				_showImage: {
 					type:Boolean,
 					value: false
 				},
-				showPDF: {
+				_showPDF: {
 					type:Boolean,
 					value: false
 				}
 			},
 			onFileTypeChanged: function(fileType) {
-				this.showPDF = false;
-				this.showImage = false;
-				this.showVideo = false;
+				this._showPDF = false;
+				this._showImage = false;
+				this._showVideo = false;
 
 				switch (fileType) {
 					case 'pdf':
-						this.showPDF = true;
+						this._showPDF = true;
 						break;
 
 					case 'img':
-						this.showImage = true;
+						this._showImage = true;
 						break;
 
 					case 'video':
-						this.showVideo = true;
+						this._showVideo = true;
 						break;
 
 					default:

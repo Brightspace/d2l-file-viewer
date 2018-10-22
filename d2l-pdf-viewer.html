@@ -1,10 +1,10 @@
 <link rel="import" href="../polymer/polymer.html">
 
 <!-- @note: aware that external stylesheets are very deprecated -->
-<link rel="stylesheet" href="bower_components/pdfjs-dist/web/pdf_viewer.css">
+<link rel="stylesheet" href="../pdfjs-dist/web/pdf_viewer.css">
 
-<script src="bower_components/pdfjs-dist/build/pdf.js"></script>
-<script src="bower_components/pdfjs-dist/web/pdf_viewer.js"></script>
+<script src="../pdfjs-dist/build/pdf.js"></script>
+<script src="../pdfjs-dist/web/pdf_viewer.js"></script>
 
 <dom-module id="d2l-pdf-viewer">
 	<template strip-whitespace>
@@ -36,7 +36,7 @@
 					type: String
 				}
 			},
-			ready() {
+			ready: function() {
 				var container = this.$.viewerContainer;
 
 				// (Optionally) enable hyperlinks within PDF files.

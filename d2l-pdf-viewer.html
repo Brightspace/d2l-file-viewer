@@ -1,0 +1,77 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<!-- @note: aware that external stylesheets are very deprecated -->
+<link rel="stylesheet" href="bower_components/pdfjs-dist/web/pdf_viewer.css">
+
+<script src="bower_components/pdfjs-dist/build/pdf.js"></script>
+<script src="bower_components/pdfjs-dist/web/pdf_viewer.js"></script>
+
+<dom-module id="d2l-pdf-viewer">
+	<template strip-whitespace>
+		<style>
+			:host {
+				display: inline-block;
+				background-color: grey;
+			}
+		</style>
+
+		<body>
+			<div id="viewerContainer">
+				<div id="viewer" class="pdfViewer"></div>
+			</div>
+		</body>
+	</template>
+	<script>
+		/* global pdfjsViewer, pdfjsLib */
+
+		/**
+		 * `<d2l-pdf-viewer>`
+		 *
+		 * @customElement
+		 * @polymer
+		 * @demo demo/index.hmtl
+		 */
+		Polymer({
+			is: 'd2l-pdf-viewer',
+			properties: {
+				fileSrc: {
+					type: String
+				},
+				isReady: false
+			},
+			ready() {
+				var container = this.$.viewerContainer;
+
+				// (Optionally) enable hyperlinks within PDF files.
+				var pdfLinkService = new pdfjsViewer.PDFLinkService();
+
+				// (Optionally) enable find controller.
+				var pdfFindController = new pdfjsViewer.PDFFindController({
+					linkService: pdfLinkService,
+				});
+
+				var pdfViewer = new pdfjsViewer.PDFViewer({
+					container: container,
+					linkService: pdfLinkService,
+					findController: pdfFindController,
+				});
+
+				pdfLinkService.setViewer(pdfViewer);
+
+				container.addEventListener('pagesinit', () => {
+					// We can use pdfViewer now, e.g. let's change default scale.
+					pdfViewer.currentScaleValue = 'page-actual';
+				});
+
+				pdfjsLib.getDocument({
+					url: this.fileSrc
+				}).then(pdfDocument => {
+					// Document loaded, specifying document for the viewer and
+					// the (optional) linkService.
+					pdfViewer.setDocument(pdfDocument);
+					pdfLinkService.setDocument(pdfDocument, null);
+				});
+			}
+		});
+	</script>
+</dom-module>

@@ -1,31 +1,25 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../polymer/polymer-element.html">
 <link rel="import" href="../d2l-video/d2l-video.html">
-
+<link rel="import" href="./d2l-pdf-viewer.html">
 
 <dom-module id="d2l-file-viewer">
 	<template strip-whitespace>
 		<style>
 			:host {
 				display: inline-block;
+				overflow: auto;
 			}
 		</style>
-		<h2>Hello [[prop1]] muhaha!</h2>
 		<body>
-
-			<template is="dom-if" if="{{ showVideo }}">
-			<d2l-video id="video" src="{{ fileSrc }}" auto-load></d2l-video>
+			<template is="dom-if" if="[[showVideo]]">
+				<d2l-video src="[[fileSrc]]" auto-load></d2l-video>
 			</template>
-			<template is="dom-if" if="{{ showImag }}">
-			<div id="img"><img ref="image" src="https://pbs.twimg.com/profile_images/955450871118221313/THtqpbHG_400x400.jpg" /></div>;
+			<template is="dom-if" if="[[showImage]]">
+				<div><img ref="image" src="[[fileSrc]]"></div>
 			</template>
-			<!-- <embed src='./test.pdf' width=”900″ height=”1000″ alt=”pdf” pluginspage=”http://www.adobe.com/products/acrobat/readstep2.html”> -->
-
-				<iframe src="./test.pdf" width="1000" height="500"></iframe>
-				<!-- <script src="https://s.brightspace.com/lib/pdf.js/1.2.109/pdf.settings.js"></script>
-			<script src="https://s.brightspace.com/lib/pdf.js/1.2.109/compatibility.js"></script>
-			<script src="https://s.brightspace.com/lib/pdf.js/1.2.109/pdf.js"></script>
-			<script src="https://s.brightspace.com/lib/pdf.js/1.2.109/pdf_viewer.js"></script> -->
+			<template is="dom-if" if="[[showPDF]]">
+				<d2l-pdf-viewer file-src="[[fileSrc]]"></d2l-pdf-viewer>
+			</template>
 		</body>
 	</template>
 	<script>
@@ -36,50 +30,51 @@
 		 * @polymer
 		 * @demo demo/index.hmtl
 		 */
-		class FileViewer extends Polymer.Element {
-			static get is() { return 'd2l-file-viewer'; }
-			static get properties() {
-				return {
-					/* Property1 description for documentation */
-					prop1: {
-						type: String,
-						value: 'd2l-file-viewer'
-					},
-					fileSrc:{
-						type: String,
-						// value: 'http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4'
-					},
-					showVideo: {
-						type:Boolean,
-						value:true
-					},
-					showImag: {
-						type:Boolean,
-						value:false
-					},
-					showPDF: {
-						type:Boolean,
-						value:false
-					}
-				};
-			}
-			static downloadFile (){
-				if (isIOS()) {
-					window.open(this.props.src);
-				} else {
-					document.location.href = this.props.src;
+		Polymer({
+			is: 'd2l-file-viewer',
+			properties: {
+				fileType: {
+					type: String,
+					observer: 'onFileTypeChanged'
+				},
+				fileSrc: {
+					type: String
+				},
+				showVideo: {
+					type:Boolean,
+					value: false
+				},
+				showImage: {
+					type:Boolean,
+					value: false
+				},
+				showPDF: {
+					type:Boolean,
+					value: false
+				}
+			},
+			onFileTypeChanged: function(fileType) {
+				this.showPDF = false;
+				this.showImage = false;
+				this.showVideo = false;
+
+				switch (fileType) {
+					case 'pdf':
+						this.showPDF = true;
+						break;
+
+					case 'img':
+						this.showImage = true;
+						break;
+
+					case 'video':
+						this.showVideo = true;
+						break;
+
+					default:
+						break;
 				}
 			}
-
-			constructor() {
-				super();
-			}
-		}
-
-		function isIOS () {
-			return /iP[ao]d|iPhone/.test(window.navigator.userAgent);
-		};
-
-		customElements.define(FileViewer.is, FileViewer);
+		});
 	</script>
 </dom-module>

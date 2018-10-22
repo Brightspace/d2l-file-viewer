@@ -24,9 +24,31 @@
 	<body unresolved class="d2l-typography">
 		<div class="vertical-section-container centered">
 			<h3>d2l-file-viewer</h3>
+
+			<h4>Video</h4>
 			<demo-snippet>
 				<template>
-					<d2l-file-viewer src="http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4"></d2l-file-viewer>
+					<d2l-file-viewer file-type="video" file-src="http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4"></d2l-file-viewer>
+				</template>
+			</demo-snippet>
+
+			<h4>PDF</h4>
+			<demo-snippet>
+				<template>
+					<style>
+						d2l-file-viewer {
+							height: 500px;
+							width: 100%;
+						}
+					</style>
+					<d2l-file-viewer file-type="pdf" file-src="/demo/compressed.tracemonkey-pldi-09.pdf"></d2l-file-viewer>
+				</template>
+			</demo-snippet>
+
+			<h4>Image</h4>
+			<demo-snippet>
+				<template>
+					<d2l-file-viewer file-type="img" file-src="/demo/d2l.jpg"></d2l-file-viewer>
 				</template>
 			</demo-snippet>
 		</div>

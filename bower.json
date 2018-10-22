@@ -15,8 +15,9 @@
     "wct.conf.json"
   ],
   "dependencies": {
-    "polymer": "Polymer/polymer#^2.0.0",
-    "d2l-video": "Brightspace/d2l-video#latest"
+    "polymer": "Polymer/polymer#1.9 - 2",
+    "d2l-video": "Brightspace/d2l-video#latest",
+    "pdfjs-dist": "^2.0.550"
   },
   "devDependencies": {
     "d2l-typography": "BrightspaceUI/typography#^6.0.0",
@@ -24,6 +25,19 @@
     "iron-test-helpers": "PolymerElements/iron-test-helpers#^2.0.0",
     "web-component-tester": "Polymer/web-component-tester#^6.0.0",
     "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.0"
+  },
+  "variants": {
+    "1.x": {
+      "dependencies": {
+        "polymer": "Polymer/polymer#^1.9"
+      },
+      "devDependencies": {
+        "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+      },
+      "resolutions": {
+        "webcomponentsjs": "^0.7"
+      }
+    }
   },
   "resolutions": {
     "polymer": "^2.6.0",

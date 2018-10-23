@@ -4,11 +4,12 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
 		<title>d2l-file-viewer demo</title>
-		<script src="../../webcomponentsjs/webcomponents-loader.js"></script>
+		<script src="../../webcomponentsjs/webcomponents-lite.js"></script>
 		<link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
 		<link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
 		<link rel="import" href="../../d2l-typography/d2l-typography.html">
 		<link rel="import" href="../d2l-file-viewer.html">
+		<link rel="import" href="../d2l-pdf-viewer.html">
 		<custom-style>
 			<style is="custom-style" include="demo-pages-shared-styles"></style>
 		</custom-style>
@@ -24,9 +25,44 @@
 	<body unresolved class="d2l-typography">
 		<div class="vertical-section-container centered">
 			<h3>d2l-file-viewer</h3>
+
+			<h4>Video</h4>
 			<demo-snippet>
 				<template>
-					<d2l-file-viewer src="http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4"></d2l-file-viewer>
+					<d2l-file-viewer file-type="video" file-src="http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4"></d2l-file-viewer>
+				</template>
+			</demo-snippet>
+
+			<h4>PDF (via d2l-file-viewer)</h4>
+			<demo-snippet>
+				<template>
+					<style>
+						d2l-file-viewer {
+							height: 500px;
+							width: 100%;
+						}
+					</style>
+					<d2l-file-viewer file-type="pdf" file-src="/demo/compressed.tracemonkey-pldi-09.pdf"></d2l-file-viewer>
+				</template>
+			</demo-snippet>
+
+			<h4>PDF (via d2l-pdf-viewer)</h4>
+			<demo-snippet>
+				<template>
+					<style>
+						d2l-pdf-viewer {
+							height: 500px;
+							width: 100%;
+						}
+					</style>
+					<d2l-pdf-viewer src="/demo/compressed.tracemonkey-pldi-09.pdf"></d2l-pdf-viewer>
+				</template>
+			</demo-snippet>
+
+			<h4>Image</h4>
+			<demo-snippet>
+				<template>
+					<d2l-file-viewer file-type="img" file-src="/demo/d2l.jpg"></d2l-file-viewer>
 				</template>
 			</demo-snippet>
 		</div>

@@ -1,0 +1,107 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<!-- @note: aware that external stylesheets are very deprecated -->
+<link rel="stylesheet" href="../pdfjs-dist/web/pdf_viewer.css">
+
+<script src="../pdfjs-dist/build/pdf.js"></script>
+<script src="../pdfjs-dist/web/pdf_viewer.js"></script>
+
+<dom-module id="d2l-pdf-viewer">
+	<template strip-whitespace>
+		<style>
+			:host {
+				display: inline-block;
+				position: relative;
+				overflow: auto;
+				width: 100%;
+				height: 100%;
+				background-color: grey;
+			}
+		</style>
+
+		<div id="viewerContainer">
+			<div id="viewer" class="pdfViewer"></div>
+		</div>
+	</template>
+	<script>
+		/* global pdfjsViewer, pdfjsLib */
+
+		/**
+		 * `<d2l-pdf-viewer>`
+		 *
+		 * @customElement
+		 * @polymer
+		 * @demo demo/index.html
+		 */
+		Polymer({
+			is: 'd2l-pdf-viewer',
+			properties: {
+				src: {
+					type: String
+				}
+			},
+			ready: function() {
+				var container = this.$.viewerContainer;
+
+				// (Optionally) enable hyperlinks within PDF files.
+				var pdfLinkService = new pdfjsViewer.PDFLinkService();
+
+				// (Optionally) enable find controller.
+				var pdfFindController = new pdfjsViewer.PDFFindController({
+					linkService: pdfLinkService,
+				});
+
+				this._pdfViewer = new pdfjsViewer.PDFViewer({
+					container: container,
+					linkService: pdfLinkService,
+					findController: pdfFindController,
+				});
+
+				pdfLinkService.setViewer(this._pdfViewer);
+
+				container.addEventListener('pagesinit', () => {
+					// We can use pdfViewer now, e.g. let's change default scale.
+					this._pdfViewer.currentScaleValue = 'page-width';
+				});
+
+				pdfjsLib.getDocument({
+					url: this.src
+				}).then(pdfDocument => {
+					// Document loaded, specifying document for the viewer and
+					// the (optional) linkService.
+					this._pdfViewer.setDocument(pdfDocument);
+					pdfLinkService.setDocument(pdfDocument, null);
+				}).catch(() => {
+					this.dispatchEvent(new CustomEvent('d2l-pdf-viewer-load-failed', {
+						bubbles: true,
+						composed: true
+					}));
+				});
+
+				this._resize = this._resize.bind(this);
+
+				window.addEventListener('resize', this._resize);
+			},
+			detached: function() {
+				window.removeEventListener('resize', this._resize);
+			},
+			_resize: function() {
+				if (!this._resizeThrottleHandle) {
+					this._resizeThrottleHandle = setTimeout(() => {
+						var currentScaleValue = this._pdfViewer.currentScaleValue;
+
+						if (currentScaleValue === 'auto' ||
+							currentScaleValue === 'page-fit' ||
+							currentScaleValue === 'page-width') {
+							// Note: the scale is constant for 'page-actual'.
+							this._pdfViewer.currentScaleValue = currentScaleValue;
+						}
+
+						this._pdfViewer.update();
+						this._resizeThrottleHandle = null;
+					}, 100);
+				}
+			}
+		});
+	</script>
+</dom-module>

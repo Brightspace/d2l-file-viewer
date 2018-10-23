@@ -1,5 +1,4 @@
 # d2l-file-viewer
-[![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/BrightspaceUI/file-viewer)
 [![Bower version][bower-image]][bower-url]
 [![Build status][ci-image]][ci-url]
 
@@ -14,11 +13,11 @@ bower install d2l-file-viewer
 
 ## Usage
 
-Include the [webcomponents.js](http://webcomponents.org/polyfills/) polyfill loader (for browsers who don't natively support web components), then import `d2l-file-viewer.html`:
+Include the [webcomponents.js](http://webcomponents.org/polyfills/) polyfill (for browsers who don't natively support web components), then import `d2l-file-viewer.html`:
 
 ```html
 <head>
-	<script src="bower_components/webcomponentsjs/webcomponents-loader.js"></script>
+	<script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
 	<link rel="import" href="bower_components/d2l-file-viewer/d2l-file-viewer.html">
 </head>
 ```
@@ -27,7 +26,7 @@ Include the [webcomponents.js](http://webcomponents.org/polyfills/) polyfill loa
 ```
 <custom-element-demo>
   <template>
-    <script src="../webcomponentsjs/webcomponents-loader.js"></script>
+    <script src="../webcomponentsjs/webcomponents-lite.js"></script>
     <link rel="import" href="../d2l-typography/d2l-typography.html">
     <link rel="import" href="d2l-file-viewer.html">
     <custom-style include="d2l-typography">

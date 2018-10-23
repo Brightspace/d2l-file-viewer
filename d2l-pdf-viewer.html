@@ -16,7 +16,6 @@
 				width: 100%;
 				height: 100%;
 				background-color: grey;
-				/* should we give this a min height? */
 			}
 
 			div#viewerContainer {
@@ -24,19 +23,18 @@
 				overflow: auto;
 			}
 
-			d2l-pdf-viewer-toolbar.toolbar {
+			d2l-pdf-viewer-toolbar {
 				display: block;
 				position: relative;
 				left: 0;
 				right: 0;
-				z-index: 9999;
 				cursor: default;
 			}
 		</style>
 		<div id="viewerContainer">
 			<div id="viewer" class="pdfViewer"></div>
 		</div>
-		<d2l-pdf-viewer-toolbar class="toolbar">
+		<d2l-pdf-viewer-toolbar>
 		</d2l-pdf-viewer-toolbar>
 	</template>
 	<script>

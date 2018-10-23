@@ -4,7 +4,7 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
 		<title>d2l-file-viewer test</title>
-		<script src="../../webcomponentsjs/webcomponents-loader.js"></script>
+		<script src="../../webcomponentsjs/webcomponents-lite.js"></script>
 		<script src="../../web-component-tester/browser.js"></script>
 		<link rel="import" href="../d2l-file-viewer.html">
 	</head>
@@ -18,10 +18,7 @@
 			suite('d2l-file-viewer', () => {
 				test('instantiating the element works', () => {
 					const element = fixture('basic');
-					assert.equal(element.prop1, 'd2l-file-viewer');
-					const elementShadowRoot = element.shadowRoot;
-					const elementHeader = elementShadowRoot.querySelector('h2');
-					assert.equal(elementHeader.innerHTML, 'Hello d2l-file-viewer!');
+					assert.equal(element.is, 'd2l-file-viewer');
 				});
 			});
 		</script>

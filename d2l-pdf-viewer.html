@@ -27,12 +27,12 @@
 		 *
 		 * @customElement
 		 * @polymer
-		 * @demo demo/index.hmtl
+		 * @demo demo/index.html
 		 */
 		Polymer({
 			is: 'd2l-pdf-viewer',
 			properties: {
-				fileSrc: {
+				src: {
 					type: String
 				}
 			},
@@ -61,7 +61,7 @@
 				});
 
 				pdfjsLib.getDocument({
-					url: this.fileSrc
+					url: this.src
 				}).then(pdfDocument => {
 					// Document loaded, specifying document for the viewer and
 					// the (optional) linkService.

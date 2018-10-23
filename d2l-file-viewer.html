@@ -24,7 +24,7 @@
 			<img src="[[fileSrc]]">
 		</template>
 		<template is="dom-if" if="[[_isFileType(fileType, 'pdf')]]">
-			<d2l-pdf-viewer file-src="[[fileSrc]]"></d2l-pdf-viewer>
+			<d2l-pdf-viewer src="[[fileSrc]]"></d2l-pdf-viewer>
 		</template>
 	</template>
 	<script>
@@ -33,7 +33,7 @@
 		 *
 		 * @customElement
 		 * @polymer
-		 * @demo demo/index.hmtl
+		 * @demo demo/index.html
 		 */
 		Polymer({
 			is: 'd2l-file-viewer',

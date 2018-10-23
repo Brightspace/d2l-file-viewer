@@ -1,4 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="d2l-pdf-viewer-toolbar.html">
 
 <!-- @note: aware that external stylesheets are very deprecated -->
 <link rel="stylesheet" href="../pdfjs-dist/web/pdf_viewer.css">
@@ -12,16 +13,31 @@
 			:host {
 				display: inline-block;
 				position: relative;
-				overflow: auto;
 				width: 100%;
 				height: 100%;
 				background-color: grey;
+				/* should we give this a min height? */
+			}
+
+			div#viewerContainer {
+				height: 100%;
+				overflow: auto;
+			}
+
+			d2l-pdf-viewer-toolbar.toolbar {
+				display: block;
+				position: relative;
+				left: 0;
+				right: 0;
+				z-index: 9999;
+				cursor: default;
 			}
 		</style>
-
 		<div id="viewerContainer">
 			<div id="viewer" class="pdfViewer"></div>
 		</div>
+		<d2l-pdf-viewer-toolbar class="toolbar">
+		</d2l-pdf-viewer-toolbar>
 	</template>
 	<script>
 		/* global pdfjsViewer, pdfjsLib */

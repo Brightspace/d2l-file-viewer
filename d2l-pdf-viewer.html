@@ -47,17 +47,17 @@
 					linkService: pdfLinkService,
 				});
 
-				var pdfViewer = new pdfjsViewer.PDFViewer({
+				this._pdfViewer = new pdfjsViewer.PDFViewer({
 					container: container,
 					linkService: pdfLinkService,
 					findController: pdfFindController,
 				});
 
-				pdfLinkService.setViewer(pdfViewer);
+				pdfLinkService.setViewer(this._pdfViewer);
 
 				container.addEventListener('pagesinit', () => {
 					// We can use pdfViewer now, e.g. let's change default scale.
-					pdfViewer.currentScaleValue = 'page-actual';
+					this._pdfViewer.currentScaleValue = 'page-width';
 				});
 
 				pdfjsLib.getDocument({
@@ -65,9 +65,38 @@
 				}).then(pdfDocument => {
 					// Document loaded, specifying document for the viewer and
 					// the (optional) linkService.
-					pdfViewer.setDocument(pdfDocument);
+					this._pdfViewer.setDocument(pdfDocument);
 					pdfLinkService.setDocument(pdfDocument, null);
+				}).catch(() => {
+					this.dispatchEvent(new CustomEvent('d2l-pdf-viewer-load-failed', {
+						bubbles: true,
+						composed: true
+					}));
 				});
+
+				this._resize = this._resize.bind(this);
+
+				window.addEventListener('resize', this._resize);
+			},
+			detached: function() {
+				window.removeEventListener('resize', this._resize);
+			},
+			_resize: function() {
+				if (!this._resizeThrottleHandle) {
+					this._resizeThrottleHandle = setTimeout(() => {
+						var currentScaleValue = this._pdfViewer.currentScaleValue;
+
+						if (currentScaleValue === 'auto' ||
+							currentScaleValue === 'page-fit' ||
+							currentScaleValue === 'page-width') {
+							// Note: the scale is constant for 'page-actual'.
+							this._pdfViewer.currentScaleValue = currentScaleValue;
+						}
+
+						this._pdfViewer.update();
+						this._resizeThrottleHandle = null;
+					}, 100);
+				}
 			}
 		});
 	</script>

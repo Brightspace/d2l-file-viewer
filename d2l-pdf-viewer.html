@@ -34,7 +34,12 @@
 		<div id="viewerContainer">
 			<div id="viewer" class="pdfViewer"></div>
 		</div>
-		<d2l-pdf-viewer-toolbar>
+		<d2l-pdf-viewer-toolbar
+			page-label="[[_pageLabel]]"
+			page-number="[[_pageNumber]]"
+			pages-count="[[_pagesCount]]"
+			has-page-labels="[[_hasPageLabels]]"
+			page-scale="[[_pageScale]]">
 		</d2l-pdf-viewer-toolbar>
 	</template>
 	<script>
@@ -52,6 +57,21 @@
 			properties: {
 				src: {
 					type: String
+				},
+				_pageLabel: {
+					type: String
+				},
+				_pageNumber: {
+					type: Number
+				},
+				_pagesCount: {
+					type: Number
+				},
+				_hasPageLabels: {
+					type: Boolean
+				},
+				_pageScale: {
+					type: Number
 				}
 			},
 			ready: function() {

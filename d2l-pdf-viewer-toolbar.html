@@ -327,36 +327,66 @@
 			// click previous page
 			_onTapPreviousPage: function() {
 				this.dispatchEvent(
-					new CustomEvent('d2l-pdf-viewer-toolbar-previous')
+					new CustomEvent(
+						'd2l-pdf-viewer-toolbar-previous',
+						{
+							bubbles: true,
+							composed: true
+						}
+					)
 				);
 			},
 			// click next page
 			_onTapNextPage: function() {
 				this.dispatchEvent(
-					new CustomEvent('d2l-pdf-viewer-toolbar-next')
+					new CustomEvent(
+						'd2l-pdf-viewer-toolbar-next',
+						{
+							bubbles: true,
+							composed: true
+						}
+					)
 				);
 			},
 			// click zoom in
 			_onTapZoomIn: function() {
 				this.dispatchEvent(
-					new CustomEvent('d2l-pdf-viewer-toolbar-zoom-in')
+					new CustomEvent(
+						'd2l-pdf-viewer-toolbar-zoom-in',
+						{
+							bubbles: true,
+							composed: true
+						}
+					)
 				);
 			},
 			// click zoom out
 			_onTapZoomOut: function() {
 				this.dispatchEvent(
-					new CustomEvent('d2l-pdf-viewer-toolbar-zoom-out')
+					new CustomEvent(
+						'd2l-pdf-viewer-toolbar-zoom-out',
+						{
+							bubbles: true,
+							composed: true
+						}
+					)
 				);
 			},
 			// change page number
-			_onChangePageNumber: function(e) {
+			_onChangePageNumber: function() {
 				this.dispatchEvent(
-					new CustomEvent('d2l-pdf-viewer-toolbar-page-change'),
-					{ custom: {
-						page: this.$.pageNumber.value
-					} }
+					new CustomEvent(
+						'd2l-pdf-viewer-toolbar-page-change',
+						{
+							bubbles: true,
+							composed: true,
+							detail: {
+								page: this.$.pageNumber.value
+							}
+						}
+					)
 				);
-			}
+			},
 		});
 	</script>
 </dom-module>

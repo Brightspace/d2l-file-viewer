@@ -1,4 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../d2l-icons/d2l-icon.html">
 
 <dom-module id="d2l-pdf-viewer-toolbar">
 	<template strip-whitespace>
@@ -158,41 +159,6 @@
 				transition-timing-function: linear;
 			}
 
-			.toolbarButton::before {
-				display: inline-block;
-				top: 4px;
-				left: 7px;
-			}
-
-			.toolbarButton.pageUp::before {
-				content: url(images/toolbarButton-pageUp.png);
-			}
-
-			:host-context([dir="rtl"]) .toolbarButton.pageUp::before {
-				content: url(images/toolbarButton-pageUp-rtl.png);
-			}
-
-			.toolbarButton.pageDown::before {
-				content: url(images/toolbarButton-pageDown.png);
-			}
-
-			:host-context([dir="rtl"]) .toolbarButton.pageDown::before {
-				content: url(images/toolbarButton-pageDown-rtl.png);
-			}
-
-			.toolbarButton.zoomOut::before {
-				content: url(images/toolbarButton-zoomOut.png);
-			}
-
-			.toolbarButton.zoomIn::before {
-				content: url(images/toolbarButton-zoomIn.png);
-			}
-
-			:host-context([dir="rtl"]) .toolbarButton::before {
-				left: 0px;
-				right: 7px;
-			}
-
 			:host-context([dir="rtl"]) .toolbarButton {
 				margin: 2px 0 4px 2px;
 			}
@@ -209,18 +175,24 @@
 					class="toolbarButton zoomOut"
 					disabled$="[[_zoomOutButtonDisabled(pageScale)]]"
 					on-tap="_onTapZoomOut">
+					<d2l-icon icon="d2l-tier1:zoom-out">
+					</d2l-icon>
 				</button>
 				<button id="zoomIn"
 					class="toolbarButton zoomIn"
 					disabled$="[[_zoomInButtonDisabled(pageScale)]]"
 					on-tap="_onTapZoomIn">
+					<d2l-icon icon="d2l-tier1:zoom-in">
+					</d2l-icon>
 				</button>
 			</div>
 			<div class="centre-container">
 				<button id="previous"
-				class="toolbarButton pageUp"
-				disabled$="[[_previousButtonDisabled(pageNumber)]]"
-				on-tap="_onTapPreviousPage">
+					class="toolbarButton pageUp"
+					disabled$="[[_previousButtonDisabled(pageNumber)]]"
+					on-tap="_onTapPreviousPage">
+					<d2l-icon icon="d2l-tier1:chevron-up">
+					</d2l-icon>
 				</button>
 				<input id="pageNumber"
 					class="toolbarField pageNumber"
@@ -235,6 +207,8 @@
 					class="toolbarButton pageDown"
 					disabled$="[[_nextButtonDisabled(pageNumber, pagesCount)]]"
 					on-tap="_onTapNextPage">
+					<d2l-icon icon="d2l-tier1:chevron-down">
+					</d2l-icon>
 				</button>
 			</div>
 			<span class="right-spacer"></span>

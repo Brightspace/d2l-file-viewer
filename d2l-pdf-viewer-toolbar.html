@@ -5,6 +5,8 @@
 		<style>
 			#toolbarContainer {
 				display: flex;
+				align-items: center;
+				justify-content: space-evenly;
 				padding: 10px;
 				position: relative;
 				height: 29px;
@@ -29,6 +31,20 @@
 							inset 0 -1px 0 hsla(0,0%,100%,.05),
 							0 1px 0 hsla(0,0%,0%,.15),
 							0 1px 1px hsla(0,0%,0%,.1);
+			}
+
+			.centre-container {
+				display: flex;
+				align-items: center;
+			}
+
+			.left-container {
+				display: flex;
+				align-items: center;
+			}
+
+			.right-spacer {
+				width: 68px;
 			}
 
 			.toolbarLabel {
@@ -194,11 +210,7 @@
 				margin: 2px 0 4px 2px;
 			}
 
-			.toolbarButton, .toolbarField, .toolbarLabel {
-				flex: 1;
-			}
-
-			@media screen and (min-resolution: 2dppx) {
+			/* @media screen and (min-resolution: 2dppx) {
 				.toolbarButton::before {
 					-webkit-transform: scale(0.5);
 					transform: scale(0.5);
@@ -227,38 +239,49 @@
 				.toolbarButton.zoomOut::before {
 					content: url(images/toolbarButton-zoomOut@2x.png);
 				}
+			} */
+
+			@media screen and (max-width: 767px) {
+				.right-spacer {
+					display: none;
+				}
 			}
 		</style>
 		<div id="toolbarContainer">
-			<button id="zoomOut"
-				class="toolbarButton zoomOut"
-				disabled$="[[_zoomOutButtonDisabled(pageScale)]]"
-				on-tap="_onTapZoomOut">
-			</button>
-			<button id="zoomIn"
-				class="toolbarButton zoomIn"
-				disabled$="[[_zoomInButtonDisabled(pageScale)]]"
-				on-tap="_onTapZoomIn">
-			</button>
-			<button id="previous"
+			<div class="left-container">
+				<button id="zoomOut"
+					class="toolbarButton zoomOut"
+					disabled$="[[_zoomOutButtonDisabled(pageScale)]]"
+					on-tap="_onTapZoomOut">
+				</button>
+				<button id="zoomIn"
+					class="toolbarButton zoomIn"
+					disabled$="[[_zoomInButtonDisabled(pageScale)]]"
+					on-tap="_onTapZoomIn">
+				</button>
+			</div>
+			<div class="centre-container">
+				<button id="previous"
 				class="toolbarButton pageUp"
 				disabled$="[[_previousButtonDisabled(pageNumber)]]"
 				on-tap="_onTapPreviousPage">
-			</button>
-			<input id="pageNumber"
-				class="toolbarField pageNumber"
-				type$="[[_pageNumberInputType(hasPageLabels)]]"
-				max$="[[_pageNumberInputMax(pagesCount)]]"
-				value$="[[_pageNumberInputValue(hasPageLabels, pageNumber, pageLabel)]]"
-				on-change="_onChangePageNumber">
-			<span id="numPages" class="toolbarLabel">
-				[[_numPagesLabel(hasPageLabels, pageNumber, pagesCount)]]
-			</span>
-			<button id="next"
-				class="toolbarButton pageDown"
-				disabled$="[[_nextButtonDisabled(pageNumber, pagesCount)]]"
-				on-tap="_onTapNextPage">
-			</button>
+				</button>
+				<input id="pageNumber"
+					class="toolbarField pageNumber"
+					type$="[[_pageNumberInputType(hasPageLabels)]]"
+					max$="[[_pageNumberInputMax(pagesCount)]]"
+					value$="[[_pageNumberInputValue(hasPageLabels, pageNumber, pageLabel)]]"
+					on-change="_onChangePageNumber">
+				<span id="numPages" class="toolbarLabel">
+					[[_numPagesLabel(hasPageLabels, pageNumber, pagesCount)]]
+				</span>
+				<button id="next"
+					class="toolbarButton pageDown"
+					disabled$="[[_nextButtonDisabled(pageNumber, pagesCount)]]"
+					on-tap="_onTapNextPage">
+				</button>
+			</div>
+			<span class="right-spacer"></span>
 		</div>
 	</template>
 	<script>

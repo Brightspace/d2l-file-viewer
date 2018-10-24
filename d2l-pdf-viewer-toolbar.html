@@ -11,11 +11,6 @@
 				position: relative;
 				height: 29px;
 				background: #f1f1f1;
-				background: -moz-linear-gradient(top, #f1f1f1 0%, #e4e4e4 100%);
-				background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f1f1f1), color-stop(100%,#e4e4e4));
-				background: -webkit-linear-gradient(top, #f1f1f1 0%,#e4e4e4 100%);
-				background: -o-linear-gradient(top, #f1f1f1 0%,#e4e4e4 100%);
-				background: -ms-linear-gradient(top, #f1f1f1 0%,#e4e4e4 100%);
 				background: linear-gradient(to bottom, #f1f1f1 0%,#e4e4e4 100%);
 				filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f1f1f1', endColorstr='#e4e4e4',GradientType=0 );
 				box-shadow: inset 1px 0 0 hsla(0,0%,100%,.08),
@@ -54,8 +49,6 @@
 				border: 1px solid transparent;
 				border-radius: 2px;
 				text-align: left;
-				-webkit-user-select: none;
-				-moz-user-select: none;
 				cursor: default;
 			}
 
@@ -126,14 +119,8 @@
 				min-width: 16px;
 				padding: 2px 6px 0;
 				border-radius: 2px;
-				-webkit-user-select: none;
-				-moz-user-select: none;
-				-ms-user-select: none;
 				/* Opera does not support user-select, use <... unselectable="on"> instead */
 				cursor: default;
-				-webkit-transition-property: background-color, border-color, box-shadow;
-				-webkit-transition-duration: 150ms;
-				-webkit-transition-timing-function: ease;
 				transition-property: background-color, border-color, box-shadow;
 				transition-duration: 150ms;
 				transition-timing-function: ease;
@@ -209,37 +196,6 @@
 			:host-context([dir="rtl"]) .toolbarButton {
 				margin: 2px 0 4px 2px;
 			}
-
-			/* @media screen and (min-resolution: 2dppx) {
-				.toolbarButton::before {
-					-webkit-transform: scale(0.5);
-					transform: scale(0.5);
-					top: -5px;
-					left: -1px;
-				}
-
-				.toolbarButton.pageUp::before {
-					content: url(images/toolbarButton-pageUp@2x.png);
-				}
-				:host-context([dir="rtl"]) .toolbarButton.pageUp::before {
-					content: url(images/toolbarButton-pageUp-rtl@2x.png);
-				}
-
-				.toolbarButton.pageDown::before {
-					content: url(images/toolbarButton-pageDownp@2x.png);
-				}
-				:host-context([dir="rtl"]) .toolbarButton.pageDown::before {
-					content: url(images/toolbarButton-pageDown-rtl@2x.png);
-				}
-
-				.toolbarButton.zoomIn::before {
-					content: url(images/toolbarButton-zoomIn@2x.png);
-				}
-
-				.toolbarButton.zoomOut::before {
-					content: url(images/toolbarButton-zoomOut@2x.png);
-				}
-			} */
 
 			@media screen and (max-width: 767px) {
 				.right-spacer {

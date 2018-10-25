@@ -3,7 +3,7 @@ node_js:
 - 9
 script:
 - npm run lint
-- npm run test:polymer:sauce
+- npm run test:polymer:local
 addons:
   jwt:
     secure: ZQBYlWsBEcVRaELtWWaUi9ouZaRdc+GqyBDHmv+H/IlnGinMJLcUD0tRfFD3n5pVvDVuRXGaHMw7kaF0CM0bd4BJGqV2aWL+erBkMGjEDdIcqxFgqDMzdgGgdDyl+dYhPIAPPUe3L2sPffXcIrAwYmW66iOgkInJiExggqViTaY=

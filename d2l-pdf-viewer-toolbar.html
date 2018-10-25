@@ -13,7 +13,6 @@
 				height: 29px;
 				background: #f1f1f1;
 				background: linear-gradient(to bottom, #f1f1f1 0%,#e4e4e4 100%);
-				filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f1f1f1', endColorstr='#e4e4e4',GradientType=0 );
 				box-shadow: inset 1px 0 0 hsla(0,0%,100%,.08),
 							inset 0 1px 1px hsla(0,0%,0%,.15),
 							inset 0 -1px 0 hsla(0,0%,100%,.05),
@@ -151,9 +150,6 @@
 				box-shadow: 0 1px 1px hsla(0,0%,0%,.1) inset,
 							0 0 1px hsla(0,0%,0%,.2) inset,
 							0 1px 0 hsla(0,0%,100%,.05);
-				-webkit-transition-property: background-color, border-color, box-shadow;
-				-webkit-transition-duration: 10ms;
-				-webkit-transition-timing-function: linear;
 				transition-property: background-color, border-color, box-shadow;
 				transition-duration: 10ms;
 				transition-timing-function: linear;
@@ -175,15 +171,13 @@
 					class="toolbarButton zoomOut"
 					disabled$="[[_zoomOutButtonDisabled(pageScale)]]"
 					on-tap="_onTapZoomOut">
-					<d2l-icon icon="d2l-tier1:zoom-out">
-					</d2l-icon>
+					<d2l-icon icon="d2l-tier1:zoom-out"></d2l-icon>
 				</button>
 				<button id="zoomIn"
 					class="toolbarButton zoomIn"
 					disabled$="[[_zoomInButtonDisabled(pageScale)]]"
 					on-tap="_onTapZoomIn">
-					<d2l-icon icon="d2l-tier1:zoom-in">
-					</d2l-icon>
+					<d2l-icon icon="d2l-tier1:zoom-in"></d2l-icon>
 				</button>
 			</div>
 			<div class="centre-container">
@@ -191,8 +185,7 @@
 					class="toolbarButton pageUp"
 					disabled$="[[_previousButtonDisabled(pageNumber)]]"
 					on-tap="_onTapPreviousPage">
-					<d2l-icon icon="d2l-tier1:chevron-up">
-					</d2l-icon>
+					<d2l-icon icon="d2l-tier1:chevron-up"></d2l-icon>
 				</button>
 				<input id="pageNumber"
 					class="toolbarField pageNumber"
@@ -207,8 +200,7 @@
 					class="toolbarButton pageDown"
 					disabled$="[[_nextButtonDisabled(pageNumber, pagesCount)]]"
 					on-tap="_onTapNextPage">
-					<d2l-icon icon="d2l-tier1:chevron-down">
-					</d2l-icon>
+					<d2l-icon icon="d2l-tier1:chevron-down"></d2l-icon>
 				</button>
 			</div>
 			<span class="right-spacer"></span>

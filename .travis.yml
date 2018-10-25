@@ -1,12 +1,8 @@
 language: node_js
 node_js:
-- 9
+- 10
+addons:
+  chrome: stable
 script:
 - npm run lint
-- npm run test:polymer:sauce
-addons:
-  jwt:
-    secure: ZQBYlWsBEcVRaELtWWaUi9ouZaRdc+GqyBDHmv+H/IlnGinMJLcUD0tRfFD3n5pVvDVuRXGaHMw7kaF0CM0bd4BJGqV2aWL+erBkMGjEDdIcqxFgqDMzdgGgdDyl+dYhPIAPPUe3L2sPffXcIrAwYmW66iOgkInJiExggqViTaY=
-env:
-  global:
-    SAUCE_USERNAME: Desire2Learn
+- npm run test:polymer:local

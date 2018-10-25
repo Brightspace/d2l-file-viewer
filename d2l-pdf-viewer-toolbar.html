@@ -1,0 +1,337 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../d2l-icons/d2l-icon.html">
+
+<dom-module id="d2l-pdf-viewer-toolbar">
+	<template strip-whitespace>
+		<style>
+			#toolbarContainer {
+				display: flex;
+				align-items: center;
+				justify-content: space-evenly;
+				padding: 10px;
+				position: relative;
+				height: 29px;
+				background: #f1f1f1;
+				background: linear-gradient(to bottom, #f1f1f1 0%,#e4e4e4 100%);
+				box-shadow: inset 1px 0 0 hsla(0,0%,100%,.08),
+							inset 0 1px 1px hsla(0,0%,0%,.15),
+							inset 0 -1px 0 hsla(0,0%,100%,.05),
+							0 1px 0 hsla(0,0%,0%,.15),
+							0 1px 1px hsla(0,0%,0%,.1);
+			}
+
+			:host-context([dir="rtl"]) #toolbarContainer {
+				box-shadow: inset -1px 0 0 hsla(0,0%,100%,.08),
+							inset 0 1px 1px hsla(0,0%,0%,.15),
+							inset 0 -1px 0 hsla(0,0%,100%,.05),
+							0 1px 0 hsla(0,0%,0%,.15),
+							0 1px 1px hsla(0,0%,0%,.1);
+			}
+
+			.centre-container {
+				display: flex;
+				align-items: center;
+			}
+
+			.left-container {
+				display: flex;
+				align-items: center;
+			}
+
+			.right-spacer {
+				width: 68px;
+			}
+
+			.toolbarLabel {
+				min-width: 16px;
+				padding: 3px 6px 3px 2px;
+				margin: 4px 2px 4px 0;
+				border: 1px solid transparent;
+				border-radius: 2px;
+				text-align: left;
+				cursor: default;
+			}
+
+			:host-context([dir="rtl"]) .toolbarLabel {
+				padding: 3px 2px 3px 6px;
+				margin: 4px 0 4px 2px;
+			}
+
+			.toolbarField {
+				padding: 3px 6px;
+				margin: 2px 0 4px 5px;
+				border: 1px solid transparent;
+				border-radius: 2px;
+				background-clip: padding-box;
+				border: 1px solid hsla(0,0%,0%,.35);
+				border-color: hsla(0,0%,0%,.32) hsla(0,0%,0%,.38) hsla(0,0%,0%,.42);
+				box-shadow: 0 1px 0 hsla(0,0%,0%,.05) inset,
+							0 1px 0 hsla(0,0%,100%,.05);
+				outline-style: none;
+				transition-property: background-color, border-color, box-shadow;
+				transition-duration: 150ms;
+				transition-timing-function: ease;
+			}
+
+			#numPages {
+				font-size: 1.333em;
+				color: #666666;
+				padding-left: 4px;
+				top: -3px;
+			}
+
+			:host-context([dir="rtl"]) #numPages {
+				padding-left: 0;
+				padding-right: 4px;
+			}
+
+			.toolbarField.pageNumber {
+				-moz-appearance: textfield; /* hides the spinner in moz */
+				min-width: 16px;
+				text-align: center;
+				width: 40px;
+			}
+
+			.toolbarField.pageNumber::-webkit-inner-spin-button,
+			.toolbarField.pageNumber::-webkit-outer-spin-button {
+				-webkit-appearance: none;
+				margin: 0;
+			}
+
+			.toolbarField:hover {
+				border-color: hsla(0,0%,0%,.4) hsla(0,0%,0%,.43) hsla(0,0%,0%,.45);
+			}
+
+			.toolbarField:focus {
+				border-color: hsla(204,100%,65%,.8) hsla(204,100%,65%,.85) hsla(204,100%,65%,.9);
+			}
+
+			:host-context([dir="rtl"]) .toolbarField {
+				margin: 2px 5px 4px 0;
+			}
+
+			.toolbarButton {
+				border: 0 none;
+				background: none;
+				width: 32px;
+				height: 25px;
+				margin: 2px 2px 4px 0;
+				min-width: 16px;
+				padding: 2px 6px 0;
+				border-radius: 2px;
+				/* Opera does not support user-select, use <... unselectable="on"> instead */
+				cursor: default;
+				transition-property: background-color, border-color, box-shadow;
+				transition-duration: 150ms;
+				transition-timing-function: ease;
+			}
+
+			.toolbarButton[disabled] {
+				opacity: .5;
+			}
+
+			.toolbarButton:hover,
+			.toolbarButton:focus {
+				background-color: hsla(0,0%,0%,.12);
+				background-image: linear-gradient(hsla(0,0%,100%,.05), hsla(0,0%,100%,0));
+				background-clip: padding-box;
+				border: 1px solid hsla(0,0%,0%,.35);
+				border-color: hsla(0,0%,0%,.32) hsla(0,0%,0%,.38) hsla(0,0%,0%,.42);
+				box-shadow: 0 1px 0 hsla(0,0%,100%,.05) inset,
+							0 0 1px hsla(0,0%,100%,.15) inset,
+							0 1px 0 hsla(0,0%,100%,.05);
+			}
+
+			.toolbarButton:hover:active,
+			.overlayButton:hover:active {
+				background-color: hsla(0,0%,0%,.2);
+				background-image: linear-gradient(hsla(0,0%,100%,.05), hsla(0,0%,100%,0));
+				border-color: hsla(0,0%,0%,.35) hsla(0,0%,0%,.4) hsla(0,0%,0%,.45);
+				box-shadow: 0 1px 1px hsla(0,0%,0%,.1) inset,
+							0 0 1px hsla(0,0%,0%,.2) inset,
+							0 1px 0 hsla(0,0%,100%,.05);
+				transition-property: background-color, border-color, box-shadow;
+				transition-duration: 10ms;
+				transition-timing-function: linear;
+			}
+
+			:host-context([dir="rtl"]) .toolbarButton {
+				margin: 2px 0 4px 2px;
+			}
+
+			@media screen and (max-width: 767px) {
+				.right-spacer {
+					display: none;
+				}
+			}
+		</style>
+		<div id="toolbarContainer">
+			<div class="left-container">
+				<button id="zoomOut"
+					class="toolbarButton zoomOut"
+					disabled$="[[_zoomOutButtonDisabled(pageScale)]]"
+					on-tap="_onTapZoomOut">
+					<d2l-icon icon="d2l-tier1:zoom-out"></d2l-icon>
+				</button>
+				<button id="zoomIn"
+					class="toolbarButton zoomIn"
+					disabled$="[[_zoomInButtonDisabled(pageScale)]]"
+					on-tap="_onTapZoomIn">
+					<d2l-icon icon="d2l-tier1:zoom-in"></d2l-icon>
+				</button>
+			</div>
+			<div class="centre-container">
+				<button id="previous"
+					class="toolbarButton pageUp"
+					disabled$="[[_previousButtonDisabled(pageNumber)]]"
+					on-tap="_onTapPreviousPage">
+					<d2l-icon icon="d2l-tier1:chevron-up"></d2l-icon>
+				</button>
+				<input id="pageNumber"
+					class="toolbarField pageNumber"
+					type$="[[_pageNumberInputType(hasPageLabels)]]"
+					max$="[[_pageNumberInputMax(pagesCount)]]"
+					value$="[[_pageNumberInputValue(hasPageLabels, pageNumber, pageLabel)]]"
+					on-change="_onChangePageNumber">
+				<span id="numPages" class="toolbarLabel">
+					[[_numPagesLabel(hasPageLabels, pageNumber, pagesCount)]]
+				</span>
+				<button id="next"
+					class="toolbarButton pageDown"
+					disabled$="[[_nextButtonDisabled(pageNumber, pagesCount)]]"
+					on-tap="_onTapNextPage">
+					<d2l-icon icon="d2l-tier1:chevron-down"></d2l-icon>
+				</button>
+			</div>
+			<span class="right-spacer"></span>
+		</div>
+	</template>
+	<script>
+		Polymer({
+			is: 'd2l-pdf-viewer-toolbar',
+			properties: {
+				pageLabel: String,
+				pageNumber: Number,
+				pagesCount: Number,
+				hasPageLabels: Boolean,
+				pageScale: Number,
+				_defaultScale: {
+					type: Number,
+					value: 1
+				},
+				_minScale: {
+					type: Number,
+					value: 0.1
+				},
+				_maxScale: {
+					type: Number,
+					value: 2
+				}
+			},
+			// --element attributes--
+			// compute page count label
+			_numPagesLabel: function(hasPageLabels, pageNumber, pagesCount) {
+				// TODO: localize
+				return hasPageLabels ?
+					pageNumber + ' of ' + pagesCount :
+					'of ' + pagesCount;
+			},
+			// compute page number input type
+			_pageNumberInputType: function(hasPageLabels) {
+				return hasPageLabels ?
+					'text' :
+					'number';
+			},
+			// compute page number input maximum
+			_pageNumberInputMax: function(pagesCount) {
+				return pagesCount;
+			},
+			// compute page number value
+			_pageNumberInputValue: function(hasPageLabels, pageNumber, pageLabel) {
+				return hasPageLabels ?
+					pageLabel :
+					pageNumber;
+			},
+			// compute previous button disabled
+			_previousButtonDisabled: function(pageNumber) {
+				return pageNumber <= 1;
+			},
+			// compute next button disabled
+			_nextButtonDisabled: function(pageNumber, pagesCount) {
+				return pageNumber >= pagesCount;
+			},
+			// compute zoom out button disabled
+			_zoomOutButtonDisabled: function(pageScale) {
+				return pageScale <= this._minScale;
+			},
+			// compute zoom in button disabled
+			_zoomInButtonDisabled: function(pageScale) {
+				return pageScale >= this._maxScale;
+			},
+			// --events--
+			// click previous page
+			_onTapPreviousPage: function() {
+				this.dispatchEvent(
+					new CustomEvent(
+						'd2l-pdf-viewer-toolbar-previous',
+						{
+							bubbles: true,
+							composed: true
+						}
+					)
+				);
+			},
+			// click next page
+			_onTapNextPage: function() {
+				this.dispatchEvent(
+					new CustomEvent(
+						'd2l-pdf-viewer-toolbar-next',
+						{
+							bubbles: true,
+							composed: true
+						}
+					)
+				);
+			},
+			// click zoom in
+			_onTapZoomIn: function() {
+				this.dispatchEvent(
+					new CustomEvent(
+						'd2l-pdf-viewer-toolbar-zoom-in',
+						{
+							bubbles: true,
+							composed: true
+						}
+					)
+				);
+			},
+			// click zoom out
+			_onTapZoomOut: function() {
+				this.dispatchEvent(
+					new CustomEvent(
+						'd2l-pdf-viewer-toolbar-zoom-out',
+						{
+							bubbles: true,
+							composed: true
+						}
+					)
+				);
+			},
+			// change page number
+			_onChangePageNumber: function() {
+				this.dispatchEvent(
+					new CustomEvent(
+						'd2l-pdf-viewer-toolbar-page-change',
+						{
+							bubbles: true,
+							composed: true,
+							detail: {
+								page: this.$.pageNumber.value
+							}
+						}
+					)
+				);
+			},
+		});
+	</script>
+</dom-module>

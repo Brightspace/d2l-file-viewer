@@ -1,0 +1,135 @@
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>d2l pdf viewer toolbar basic tests</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+		<script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+		<script src="../../web-component-tester/browser.js"></script>
+		<script src="../../iron-test-helpers/mock-interactions.js"></script>
+		<link rel="import" href="../d2l-pdf-viewer-toolbar.html">
+	</head>
+	<body>
+		<test-fixture id="Toolbar">
+			<template>
+				<d2l-pdf-viewer-toolbar></d2l-pdf-viewer-toolbar>
+			</template>
+		</test-fixture>
+		<script>
+			describe('<d2l-pdf-viewer-toolbar>', function() {
+				var toolbar;
+
+				describe('Toolbar', function() {
+					beforeEach(function() {
+						toolbar = fixture('Toolbar');
+					});
+					describe('Toolbar events', function() {
+						it('should fire d2l-pdf-viewer-toolbar-previous when previous page button is clicked', function(done) {
+							toolbar.addEventListener('d2l-pdf-viewer-toolbar-previous', function() {
+								done();
+							});
+							MockInteractions.tap(toolbar.$.previous);
+						});
+						it('should fire d2l-pdf-viewer-toolbar-next when next page button is clicked', function(done) {
+							toolbar.addEventListener('d2l-pdf-viewer-toolbar-next', function() {
+								done();
+							});
+							MockInteractions.tap(toolbar.$.next);
+						});
+						it('should fire d2l-pdf-viewer-toolbar-zoom-in when zoom in button is clicked', function(done) {
+							toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-in', function() {
+								done();
+							});
+							MockInteractions.tap(toolbar.$.zoomIn);
+						});
+						it('should fire d2l-pdf-viewer-toolbar-zoom-out when zoom out button is clicked', function(done) {
+							toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-out', function() {
+								done();
+							});
+							MockInteractions.tap(toolbar.$.zoomOut);
+						});
+					});
+
+					describe('Toolbar properties', function() {
+						beforeEach(function() {
+							toolbar.pageLabel = null;
+							toolbar.pageNumber = 4;
+							toolbar.pagesCount = 10;
+							toolbar.hasPageLabels = false;
+							toolbar.pageScale = 1;
+						});
+
+						it('should render all elements correctly', function() {
+							expect(toolbar.$.zoomOut.hasAttribute('disabled')).to.be.false;
+							expect(toolbar.$.zoomIn.hasAttribute('disabled')).to.be.false;
+							expect(toolbar.$.previous.hasAttribute('disabled')).to.be.false;
+							expect(toolbar.$.next.hasAttribute('disabled')).to.be.false;
+							expect(toolbar.$.numPages.textContent.includes('of 10')).to.be.true;
+							expect(toolbar.$.numPages.textContent.includes('4 of 10')).to.be.false;
+							expect(parseInt(toolbar.$.pageNumber.value)).to.equal(4);
+							expect(parseInt(toolbar.$.pageNumber.max)).to.equal(10);
+							expect(toolbar.$.pageNumber.type).to.equal('number');
+						});
+
+						it('should disable zoomIn when pageScale >= 2', function(done) {
+							toolbar.pageScale = 2;
+							setTimeout(function() {
+								expect(toolbar.$.zoomIn.hasAttribute('disabled')).to.be.true;
+								done();
+							});
+						});
+
+						it('should disable zoomOut when pageScale <= 0.1', function(done) {
+							toolbar.pageScale = 0.1;
+							setTimeout(function() {
+								expect(toolbar.$.zoomOut.hasAttribute('disabled')).to.be.true;
+								done();
+							});
+						});
+
+						it('should disable previous when pageNumber <= 1', function(done) {
+							toolbar.pageNumber = 1;
+							setTimeout(function() {
+								expect(toolbar.$.previous.hasAttribute('disabled')).to.be.true;
+								done();
+							});
+						});
+
+						it('should disable next when pageNumber >= pagesCount', function(done) {
+							toolbar.pageNumber = toolbar.pagesCount;
+							setTimeout(function() {
+								expect(toolbar.$.next.hasAttribute('disabled')).to.be.true;
+								done();
+							});
+						});
+
+						it('should not display page label if hasPageLabels is false', function(done) {
+							toolbar.pageLabel = 'test';
+							setTimeout(function() {
+								expect(toolbar.$.pageNumber.value.includes('test')).to.be.false;
+								done();
+							});
+						});
+
+						it('should display page label & change "out of" text if hasPageLabels is true', function(done) {
+							toolbar.hasPageLabels = true;
+							toolbar.pageLabel = 'test';
+							setTimeout(function() {
+								expect(toolbar.$.pageNumber.value.includes('test')).to.be.true;
+								expect(toolbar.$.numPages.textContent.includes('4 of 10')).to.be.true;
+								done();
+							});
+						});
+
+						it('should not display page label if hasPageLabels is false', function(done) {
+							toolbar.hasPageLabels = true;
+							setTimeout(function() {
+								expect(toolbar.$.pageNumber.type).to.equal('text');
+								done();
+							});
+						});
+					});
+				});
+			});
+		</script>
+	</body>
+</html>

@@ -1,4 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="d2l-pdf-viewer-toolbar.html">
 
 <!-- @note: aware that external stylesheets are very deprecated -->
 <link rel="stylesheet" href="../pdfjs-dist/web/pdf_viewer.css">
@@ -12,16 +13,34 @@
 			:host {
 				display: inline-block;
 				position: relative;
-				overflow: auto;
 				width: 100%;
 				height: 100%;
 				background-color: grey;
 			}
-		</style>
 
+			div#viewerContainer {
+				height: 100%;
+				overflow: auto;
+			}
+
+			d2l-pdf-viewer-toolbar {
+				display: block;
+				position: relative;
+				left: 0;
+				right: 0;
+				cursor: default;
+			}
+		</style>
 		<div id="viewerContainer">
 			<div id="viewer" class="pdfViewer"></div>
 		</div>
+		<d2l-pdf-viewer-toolbar
+			page-label="[[_pageLabel]]"
+			page-number="[[_pageNumber]]"
+			pages-count="[[_pagesCount]]"
+			has-page-labels="[[_hasPageLabels]]"
+			page-scale="[[_pageScale]]">
+		</d2l-pdf-viewer-toolbar>
 	</template>
 	<script>
 		/* global pdfjsViewer, pdfjsLib */
@@ -38,6 +57,21 @@
 			properties: {
 				src: {
 					type: String
+				},
+				_pageLabel: {
+					type: String
+				},
+				_pageNumber: {
+					type: Number
+				},
+				_pagesCount: {
+					type: Number
+				},
+				_hasPageLabels: {
+					type: Boolean
+				},
+				_pageScale: {
+					type: Number
 				}
 			},
 			ready: function() {

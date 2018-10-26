@@ -169,13 +169,17 @@
 				<button id="zoomOut"
 					class="toolbarButton zoomOut"
 					disabled$="[[_zoomOutButtonDisabled(pageScale, minPageScale)]]"
-					on-tap="_onTapZoomOut">
+					on-tap="_onTapZoomOut"
+					aria-label$="[[localize('zoomOutLabel')]]"
+					title$="[[localize('zoomOutTitle')]]">
 					<d2l-icon icon="d2l-tier1:zoom-out"></d2l-icon>
 				</button>
 				<button id="zoomIn"
 					class="toolbarButton zoomIn"
 					disabled$="[[_zoomInButtonDisabled(pageScale, maxPageScale)]]"
-					on-tap="_onTapZoomIn">
+					on-tap="_onTapZoomIn"
+					aria-label$="[[localize('zoomInLabel')]]"
+					title$="[[localize('zoomInTitle')]]">
 					<d2l-icon icon="d2l-tier1:zoom-in"></d2l-icon>
 				</button>
 			</div>
@@ -183,7 +187,9 @@
 				<button id="previous"
 					class="toolbarButton pageUp"
 					disabled$="[[_previousButtonDisabled(pageNumber)]]"
-					on-tap="_onTapPreviousPage">
+					on-tap="_onTapPreviousPage"
+					aria-label$="[[localize('previousLabel')]]"
+					title$="[[localize('previousTitle')]]">
 					<d2l-icon icon="d2l-tier1:chevron-up"></d2l-icon>
 				</button>
 				<input id="pageNumber"
@@ -191,14 +197,17 @@
 					type$="[[_pageNumberInputType(hasPageLabels)]]"
 					max$="[[_pageNumberInputMax(pagesCount)]]"
 					value="{{_inputPageNumber::input}}"
-					on-change="_onChangePageNumberInput">
+					on-change="_onChangePageNumberInput"
+					aria-label$="[[localize('pageLabel')]]">
 				<span id="numPages" class="toolbarLabel">
 					[[_numPagesLabel(hasPageLabels, pageNumber, pagesCount)]]
 				</span>
 				<button id="next"
 					class="toolbarButton pageDown"
 					disabled$="[[_nextButtonDisabled(pageNumber, pagesCount)]]"
-					on-tap="_onTapNextPage">
+					on-tap="_onTapNextPage"
+					aria-label$="[[localize('nextLabel')]]"
+					title$="[[localize('nextTitle')]]">
 					<d2l-icon icon="d2l-tier1:chevron-down"></d2l-icon>
 				</button>
 			</div>
@@ -257,8 +266,8 @@
 			_numPagesLabel: function(hasPageLabels, pageNumber, pagesCount) {
 				// TODO: localize
 				return hasPageLabels ?
-					this.localize('pageOfPages', 'pageNumber', pageNumber, 'pageCount', pagesCount) :
-					this.localize('pageOf', 'pageCount', pagesCount);
+					this.localize('pageOfPages', 'pageNumber', pageNumber, 'pagesCount', pagesCount) :
+					this.localize('pageOf', 'pagesCount', pagesCount);
 			},
 			// compute page number input type
 			_pageNumberInputType: function(hasPageLabels) {

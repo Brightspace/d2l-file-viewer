@@ -22,7 +22,7 @@
 				position: relative;
 				overflow: auto;
 				width: 100%;
-				height: calc(100% - 39px);
+				height: calc(100% - 49px);
 			}
 
 			d2l-pdf-viewer-toolbar {
@@ -50,12 +50,12 @@
 		/* global pdfjsViewer, pdfjsLib */
 
 		/**
-		* `<d2l-pdf-viewer>`
-		*
-		* @customElement
-		* @polymer
-		* @demo demo/index.html
-		*/
+		 * `<d2l-pdf-viewer>`
+		 *
+		 * @customElement
+		 * @polymer
+		 * @demo demo/index.html
+		 */
 		Polymer({
 			is: 'd2l-pdf-viewer',
 			properties: {
@@ -85,7 +85,7 @@
 				},
 				_maxPageScale: {
 					type: Number,
-					value: 2.0
+					value: 10
 				}
 			},
 			ready: function() {
@@ -178,19 +178,10 @@
 
 				this._setPageNumber(newPage);
 			},
-			_onScaleChangedEvent: function(evt) {
-				this._pdfViewer.currentScaleValue = evt.detail.scale;
-				this._pageScale = this._pdfViewer.currentScale;
-			},
 			_addDeltaZoom: function(delta) {
 				var newZoom = this._pdfViewer.currentScale + delta;
 
-				this._pdfViewer.currentScaleValue = Math.max(
-					this._minPageScale,
-					Math.min(this._maxPageScale, newZoom)
-				);
-
-				this._pageScale = this._pdfViewer.currentScale;
+				this._setScale(newZoom);
 			},
 			_setPageNumber: function(pageNumber) {
 				if (pageNumber < 1 || pageNumber > this._pagesCount) {
@@ -199,6 +190,14 @@
 
 				this._pdfViewer.currentPageNumber = pageNumber;
 				this._pageNumber = pageNumber;
+			},
+			_setScale: function(newScale) {
+				this._pdfViewer.currentScaleValue = Math.max(
+					this._minPageScale,
+					Math.min(this._maxPageScale, newScale)
+				);
+
+				this._pageScale = this._pdfViewer.currentScale;
 			}
 		});
 	</script>

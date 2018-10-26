@@ -1,5 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../d2l-icons/d2l-icon.html">
+<link rel="import" href="../d2l-typography/d2l-typography-shared-styles.html">
 
 <dom-module id="d2l-pdf-viewer-toolbar">
 	<template strip-whitespace>
@@ -28,12 +29,7 @@
 							0 1px 1px hsla(0,0%,0%,.1);
 			}
 
-			.centre-container {
-				display: flex;
-				align-items: center;
-			}
-
-			.left-container {
+			.toolbar-container {
 				display: flex;
 				align-items: center;
 			}
@@ -43,6 +39,8 @@
 			}
 
 			.toolbarLabel {
+				@apply --d2l-label-text;
+				font-size: 0.8rem;
 				min-width: 16px;
 				padding: 3px 6px 3px 2px;
 				margin: 4px 2px 4px 0;
@@ -50,6 +48,7 @@
 				border-radius: 2px;
 				text-align: left;
 				cursor: default;
+				user-select: none;
 			}
 
 			:host-context([dir="rtl"]) .toolbarLabel {
@@ -74,7 +73,6 @@
 			}
 
 			#numPages {
-				font-size: 1.333em;
 				color: #666666;
 				padding-left: 4px;
 				top: -3px;
@@ -130,8 +128,8 @@
 				opacity: .5;
 			}
 
-			.toolbarButton:hover,
-			.toolbarButton:focus {
+			.toolbarButton:hover:not(:disabled),
+			.toolbarButton:focus:not(:disabled) {
 				background-color: hsla(0,0%,0%,.12);
 				background-image: linear-gradient(hsla(0,0%,100%,.05), hsla(0,0%,100%,0));
 				background-clip: padding-box;
@@ -142,8 +140,8 @@
 							0 1px 0 hsla(0,0%,100%,.05);
 			}
 
-			.toolbarButton:hover:active,
-			.overlayButton:hover:active {
+			.toolbarButton:hover:active:not(:disabled),
+			.overlayButton:hover:active:not(:disabled) {
 				background-color: hsla(0,0%,0%,.2);
 				background-image: linear-gradient(hsla(0,0%,100%,.05), hsla(0,0%,100%,0));
 				border-color: hsla(0,0%,0%,.35) hsla(0,0%,0%,.4) hsla(0,0%,0%,.45);
@@ -166,21 +164,21 @@
 			}
 		</style>
 		<div id="toolbarContainer">
-			<div class="left-container">
+			<div class="toolbar-container">
 				<button id="zoomOut"
 					class="toolbarButton zoomOut"
-					disabled$="[[_zoomOutButtonDisabled(pageScale)]]"
+					disabled$="[[_zoomOutButtonDisabled(pageScale, minPageScale)]]"
 					on-tap="_onTapZoomOut">
 					<d2l-icon icon="d2l-tier1:zoom-out"></d2l-icon>
 				</button>
 				<button id="zoomIn"
 					class="toolbarButton zoomIn"
-					disabled$="[[_zoomInButtonDisabled(pageScale)]]"
+					disabled$="[[_zoomInButtonDisabled(pageScale, maxPageScale)]]"
 					on-tap="_onTapZoomIn">
 					<d2l-icon icon="d2l-tier1:zoom-in"></d2l-icon>
 				</button>
 			</div>
-			<div class="centre-container">
+			<div class="toolbar-container">
 				<button id="previous"
 					class="toolbarButton pageUp"
 					disabled$="[[_previousButtonDisabled(pageNumber)]]"
@@ -191,8 +189,8 @@
 					class="toolbarField pageNumber"
 					type$="[[_pageNumberInputType(hasPageLabels)]]"
 					max$="[[_pageNumberInputMax(pagesCount)]]"
-					value$="[[_pageNumberInputValue(hasPageLabels, pageNumber, pageLabel)]]"
-					on-change="_onChangePageNumber">
+					value="{{_inputPageNumber::input}}"
+					on-change="_onChangePageNumberInput">
 				<span id="numPages" class="toolbarLabel">
 					[[_numPagesLabel(hasPageLabels, pageNumber, pagesCount)]]
 				</span>
@@ -211,21 +209,41 @@
 			is: 'd2l-pdf-viewer-toolbar',
 			properties: {
 				pageLabel: String,
-				pageNumber: Number,
-				pagesCount: Number,
-				hasPageLabels: Boolean,
-				pageScale: Number,
-				_defaultScale: {
+				pageNumber: {
 					type: Number,
-					value: 1
+					observer: '_onPageNumberChanged'
+				},
+				pagesCount: {
+					type: Number,
+					value: 0
+				},
+				hasPageLabels: {
+					type: Boolean,
+					value: false
+				},
+				pageScale: {
+					type: Number,
+					value: 0
 				},
 				_minScale: {
 					type: Number,
-					value: 0.1
+					value: 0
 				},
 				_maxScale: {
 					type: Number,
-					value: 2
+					value: 0
+				},
+				_inputPageNumber: {
+					type: Number,
+					value: 0
+				},
+				minPageScale: {
+					type: Number,
+					value: 0
+				},
+				maxPageScale: {
+					type: Number,
+					value: 0
 				}
 			},
 			// --element attributes--
@@ -246,12 +264,6 @@
 			_pageNumberInputMax: function(pagesCount) {
 				return pagesCount;
 			},
-			// compute page number value
-			_pageNumberInputValue: function(hasPageLabels, pageNumber, pageLabel) {
-				return hasPageLabels ?
-					pageLabel :
-					pageNumber;
-			},
 			// compute previous button disabled
 			_previousButtonDisabled: function(pageNumber) {
 				return pageNumber <= 1;
@@ -261,70 +273,48 @@
 				return pageNumber >= pagesCount;
 			},
 			// compute zoom out button disabled
-			_zoomOutButtonDisabled: function(pageScale) {
-				return pageScale <= this._minScale;
+			_zoomOutButtonDisabled: function(pageScale, minPageScale) {
+				return pageScale <= minPageScale || Math.abs(pageScale - minPageScale) < Number.EPSILON;
 			},
 			// compute zoom in button disabled
-			_zoomInButtonDisabled: function(pageScale) {
-				return pageScale >= this._maxScale;
+			_zoomInButtonDisabled: function(pageScale, maxPageScale) {
+				return pageScale >= maxPageScale || Math.abs(pageScale - maxPageScale) < Number.EPSILON;
 			},
 			// --events--
 			// click previous page
 			_onTapPreviousPage: function() {
 				this.dispatchEvent(
-					new CustomEvent(
-						'd2l-pdf-viewer-toolbar-previous',
-						{
-							bubbles: true,
-							composed: true
-						}
-					)
+					new CustomEvent('d2l-pdf-viewer-toolbar-previous')
 				);
 			},
 			// click next page
 			_onTapNextPage: function() {
 				this.dispatchEvent(
-					new CustomEvent(
-						'd2l-pdf-viewer-toolbar-next',
-						{
-							bubbles: true,
-							composed: true
-						}
-					)
+					new CustomEvent('d2l-pdf-viewer-toolbar-next')
 				);
 			},
 			// click zoom in
 			_onTapZoomIn: function() {
 				this.dispatchEvent(
-					new CustomEvent(
-						'd2l-pdf-viewer-toolbar-zoom-in',
-						{
-							bubbles: true,
-							composed: true
-						}
-					)
+					new CustomEvent('d2l-pdf-viewer-toolbar-zoom-in')
 				);
 			},
 			// click zoom out
 			_onTapZoomOut: function() {
 				this.dispatchEvent(
-					new CustomEvent(
-						'd2l-pdf-viewer-toolbar-zoom-out',
-						{
-							bubbles: true,
-							composed: true
-						}
-					)
+					new CustomEvent('d2l-pdf-viewer-toolbar-zoom-out')
 				);
 			},
 			// change page number
-			_onChangePageNumber: function() {
+			_onChangePageNumberInput: function() {
+				if (this._inputPageNumber > this.pagesCount || this._inputPageNumber < 1) {
+					this._inputPageNumber = this.pageNumber;
+					return;
+				}
+
 				this.dispatchEvent(
 					new CustomEvent(
-						'd2l-pdf-viewer-toolbar-page-change',
-						{
-							bubbles: true,
-							composed: true,
+						'd2l-pdf-viewer-toolbar-page-change', {
 							detail: {
 								page: this.$.pageNumber.value
 							}
@@ -332,6 +322,9 @@
 					)
 				);
 			},
+			_onPageNumberChanged: function(newPageNumber) {
+				this._inputPageNumber = newPageNumber;
+			}
 		});
 	</script>
 </dom-module>

@@ -213,16 +213,25 @@
 					type: Number,
 					observer: '_onPageNumberChanged'
 				},
-				pagesCount: Number,
-				hasPageLabels: Boolean,
-				pageScale: Number,
+				pagesCount: {
+					type: Number,
+					value: 0
+				},
+				hasPageLabels: {
+					type: Boolean,
+					value: false
+				},
+				pageScale: {
+					type: Number,
+					value: 0
+				},
 				_minScale: {
 					type: Number,
-					value: 0.1
+					value: 0
 				},
 				_maxScale: {
 					type: Number,
-					value: 2
+					value: 0
 				},
 				_inputPageNumber: {
 					type: Number,
@@ -254,12 +263,6 @@
 			// compute page number input maximum
 			_pageNumberInputMax: function(pagesCount) {
 				return pagesCount;
-			},
-			// compute page number value
-			_pageNumberInputValue: function(hasPageLabels, pageNumber, pageLabel) {
-				return hasPageLabels ?
-					pageLabel :
-					pageNumber;
 			},
 			// compute previous button disabled
 			_previousButtonDisabled: function(pageNumber) {

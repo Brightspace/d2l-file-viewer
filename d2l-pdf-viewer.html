@@ -85,7 +85,7 @@
 				},
 				_maxPageScale: {
 					type: Number,
-					value: 10
+					value: 2
 				}
 			},
 			ready: function() {
@@ -105,8 +105,6 @@
 				pdfjsLib.getDocument({
 					url: this.src
 				}).then(pdfDocument => {
-					// Document loaded, specifying document for the viewer and
-					// the (optional) linkService.
 					this._pdfViewer.setDocument(pdfDocument);
 					this._pagesCount = pdfDocument.numPages;
 					this._pageNumber = this._pdfViewer.currentPageNumber;
@@ -174,7 +172,7 @@
 				this._addDeltaZoom(-0.1);
 			},
 			_onPageNumberChangedEvent: function(evt) {
-				var newPage = Number(evt.detail.page);
+				var newPage = parseInt(evt.detail.page);
 
 				this._setPageNumber(newPage);
 			},

@@ -1,4 +1,5 @@
-<link rel="import" href="../app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../d2l-localize-behavior/d2l-localize-behavior.html">
 
 <link rel="import" href="lang/ar.html">
 <link rel="import" href="lang/de.html">
@@ -12,83 +13,31 @@
 <link rel="import" href="lang/pt.html">
 <link rel="import" href="lang/sv.html">
 <link rel="import" href="lang/tr.html">
-<link rel="import" href="lang/zh-cn.html">
 <link rel="import" href="lang/zh-tw.html">
 <link rel="import" href="lang/zh.html">
 
+<script src="./util/namespace.js"></script>
 <script>
-	'use strict';
-
-	(function() {
-		window.D2L = window.D2L || {};
-		window.D2L.FileViewer = window.D2L.FileViewer || {};
-
-		/*
-		 * Behavior for elements that require localization, based on `app-localize-behavior`
-		 * @polymerBehavior window.D2L.FileViewer.LocalizeBehavior
-		 */
-		window.D2L.FileViewer.LocalizeBehaviorImpl = {
-			properties: {
-				language: {
-					type: String,
-					computed: '_determineLanguage(locale, resources)'
-				},
-				locale: {
-					type: String,
-					value: function() {
-						return document.documentElement.lang
-							|| document.documentElement.getAttribute('data-lang-default')
-							|| 'en-us';
-					}
-				},
-				useKeyIfMissing: {
-					type: Boolean,
-					value: true
-				},
-				resources: {
-					value: function() {
-						return {
-							'en': this.en,
-							'ar': this.ar,
-							'de': this.de,
-							'es': this.es,
-							'fr': this.fr,
-							'ja': this.ja,
-							'ko': this.ko,
-							'nl': this.nl,
-							'pt': this.pt,
-							'sv': this.sv,
-							'tr': this.tr,
-							'zh-cn': this.zhCn,
-							'zh-tw': this.zhTw,
-							'zh': this.zh
-						}
-					}
+	/**
+	* Localizes the d2l-file-viewer components.
+	* @polymerBehavior D2L.PolymerBehaviors.FileViewer.LocalizeBehavior
+	*/
+	window.D2L.PolymerBehaviors.FileViewer.LocalizeBehaviorImpl = {
+		properties: {
+			/**
+			* Localization resources.
+			*/
+			resources: {
+				value: function() {
+					return window.D2L.PolymerBehaviors.FileViewer.LangTerms;
 				}
-			},
-			_determineLanguage: function(locale, resources) {
-				locale = locale.toLowerCase();
-
-				if(resources[locale]) {
-					return locale;
-				}
-
-				var langAndRegion = locale.split('-');
-
-				if(resources[langAndRegion[0]]) {
-					return langAndRegion[0];
-				}
-
-				return 'en';
 			}
-		};
+		}
+	};
 
-		// TODO: individual lang behaviors
-		/* @polymerBehavior */
-		window.D2L.FileViewer.LocalizeBehavior = [
-			Polymer.AppLocalizeBehavior,
-			window.D2L.FileViewer.LocalizeBehaviorImpl,
-			window.D2L.FileViewer.LocalizeBehavior.LangEnBehavior
-		];
-	})();
+	/** @polymerBehavior D2L.PolymerBehaviors.FileViewer.LocalizeBehavior */
+	window.D2L.PolymerBehaviors.FileViewer.LocalizeBehavior = [
+		window.D2L.PolymerBehaviors.LocalizeBehavior,
+		window.D2L.PolymerBehaviors.FileViewer.LocalizeBehaviorImpl
+	];
 </script>

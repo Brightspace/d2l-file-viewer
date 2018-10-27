@@ -1,30 +1,19 @@
-<link rel="import" href="../../polymer/polymer.html">
-
+<script src="../util/namespace.js"></script>
 <script>
 	/* eslint quotes: ["error", "double"] */
 	"use strict";
 
-	window.D2L = window.D2L || {};
-	window.D2L.FileViewer = window.D2L.FileViewer || {};
-	window.D2L.FileViewer.LocalizeBehavior = window.D2L.FileViewer.LocalizeBehavior || {};
-
-	/*
-	 * Nb lang terms
-	 * @polymerBehavior window.D2L.FileViewer.LocalizeBehavior.LangNbBehavior
-	 */
-	window.D2L.FileViewer.LocalizeBehavior.LangNbBehavior = {
-		nb: {
-			"nextTitle": "Neste side",
-			"nextLabel": "Neste",
-			"pageLabel": "Side",
-			"pageOf": "av {pagesCount}",
-			"pageOfPages": "({pageNumber} av {pagesCount})",
-			"previousTitle": "Forrige side",
-			"previousLabel": "Forrige",
-			"zoomInTitle": "Zoom inn",
-			"zoomInLabel": "Zoom inn",
-			"zoomOutTitle": "Zoom ut",
-			"zoomOutLabel": "Zoom ut"
-		}
-	}
+	window.D2L.PolymerBehaviors.FileViewer.LangTerms.nb = {
+		"nextTitle": "Neste side",
+		"nextLabel": "Neste",
+		"pageLabel": "Side",
+		"pageOf": "av {pagesCount}",
+		"pageOfPages": "({pageNumber} av {pagesCount})",
+		"previousTitle": "Forrige side",
+		"previousLabel": "Forrige",
+		"zoomInTitle": "Zoom inn",
+		"zoomInLabel": "Zoom inn",
+		"zoomOutTitle": "Zoom ut",
+		"zoomOutLabel": "Zoom ut"
+	};
 </script>

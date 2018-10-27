@@ -1,30 +1,19 @@
-<link rel="import" href="../../polymer/polymer.html">
-
+<script src="../util/namespace.js"></script>
 <script>
 	/* eslint quotes: ["error", "double"] */
 	"use strict";
 
-	window.D2L = window.D2L || {};
-	window.D2L.FileViewer = window.D2L.FileViewer || {};
-	window.D2L.FileViewer.LocalizeBehavior = window.D2L.FileViewer.LocalizeBehavior || {};
-
-	/*
-	 * En lang terms
-	 * @polymerBehavior window.D2L.FileViewer.LocalizeBehavior.LangEnBehavior
-	 */
-	window.D2L.FileViewer.LocalizeBehavior.LangEnBehavior = {
-		en: {
-			"nextTitle": "Next Page",
-			"nextLabel": "Next",
-			"pageLabel": "Page",
-			"pageOf": "of {pagesCount}",
-			"pageOfPages": "({pageNumber} of {pagesCount})",
-			"previousTitle": "Previous Page",
-			"previousLabel": "Previous",
-			"zoomInTitle": "Zoom In",
-			"zoomInLabel": "Zoom In",
-			"zoomOutTitle": "Zoom Out",
-			"zoomOutLabel": "Zoom Out"
-		}
-	}
+	window.D2L.PolymerBehaviors.FileViewer.LangTerms.en = {
+		"nextTitle": "Next Page",
+		"nextLabel": "Next",
+		"pageLabel": "Page",
+		"pageOf": "of {pagesCount}",
+		"pageOfPages": "({pageNumber} of {pagesCount})",
+		"previousTitle": "Previous Page",
+		"previousLabel": "Previous",
+		"zoomInTitle": "Zoom In",
+		"zoomInLabel": "Zoom In",
+		"zoomOutTitle": "Zoom Out",
+		"zoomOutLabel": "Zoom Out"
+	};
 </script>

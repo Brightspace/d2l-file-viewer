@@ -57,9 +57,7 @@
 
 				describe('properties', function() {
 					beforeEach(function() {
-						beforeEach(function() {
-							toolbar = fixture('basic');
-						});
+						toolbar = fixture('basic');
 					});
 
 					it('should render all elements correctly', function() {
@@ -118,7 +116,7 @@
 						toolbar.pageLabel = 'test';
 						setTimeout(function() {
 							expect(toolbar.$.pageNumber.value.includes('test')).to.be.true;
-							expect(toolbar.$.numPages.textContent.includes('4 of 10')).to.be.true;
+							expect(toolbar.$.numPages.textContent.trim()).to.equal('4 of 10');
 							done();
 						});
 					});

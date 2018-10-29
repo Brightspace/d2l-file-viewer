@@ -8,7 +8,6 @@
     "lint:wc": "polymer lint -i d2l-file-viewer.html",
     "serve": "polymer serve",
     "test:polymer:local": "polymer test --skip-plugin sauce",
-    "test:polymer:cross-env": "cross-env LAUNCHPAD_BROWSERS=chrome polymer test --skip-plugin sauce",
     "test": "npm run lint && npm run test:polymer:local"
   },
   "repository": {

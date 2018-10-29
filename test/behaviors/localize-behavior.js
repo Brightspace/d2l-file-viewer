@@ -9,20 +9,13 @@ describe('localize behavior', function() {
 		document.documentElement.removeAttribute('lang');
 	});
 
-	it('should have default locale', function() {
+	it('should translate terms for all supported locales', function() {
 		component = fixture('localize-behavior-fixture');
-
-		expect(component.locale).to.equal('en-US');
-		expect(component.localize('pageLabel')).to.equal('Page');
-	});
-
-	it('should use default locale if provided locale does not exist', function() {
-		document.documentElement.setAttribute('lang', 'zz-ZZ');
-
-		component = fixture('localize-behavior-fixture');
-
-		expect(component.locale).to.equal('zz-ZZ');
-		expect(component.localize('pageLabel')).to.equal('Page');
+		var locales = Object.keys(component.resources);
+		locales.forEach(function(locale) {
+			document.documentElement.setAttribute('lang', locale);
+			expect(component.localize('pageLabel')).to.equal(component.resources[locale].pageLabel);
+		});
 	});
 
 	describe('localize mappings', function() {

@@ -1,0 +1,15 @@
+<link rel="import" href="../../localize-behavior.html">
+
+<script src="../../util/namespace.js"></script>
+
+<dom-module id="localize-behavior-consumer">
+	<script>
+		'use strict';
+		Polymer({
+			is: 'localize-behavior-consumer',
+			behaviors: [
+				window.D2L.PolymerBehaviors.FileViewer.LocalizeBehavior
+			]
+		});
+	</script>
+</dom-module>

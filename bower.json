@@ -15,13 +15,14 @@
     "wct.conf.json"
   ],
   "dependencies": {
-    "polymer": "Polymer/polymer#1.9 - 2",
+    "d2l-icons": "^4.10.0",
+    "d2l-localize-behavior": "^1.1.3",
+    "d2l-typography": "^6.1.3",
     "d2l-video": "^2.0.2",
     "pdfjs-dist": "^2.0.550",
-    "d2l-icons": "4.10.0"
+    "polymer": "Polymer/polymer#1.9 - 2"
   },
   "devDependencies": {
-    "d2l-typography": "BrightspaceUI/typography#^6.0.0",
     "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^2.0.0",
     "iron-test-helpers": "PolymerElements/iron-test-helpers#^2.0.0",
     "web-component-tester": "Polymer/web-component-tester#^6.0.0",

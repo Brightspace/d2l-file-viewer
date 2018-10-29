@@ -1,0 +1,43 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../d2l-localize-behavior/d2l-localize-behavior.html">
+
+<link rel="import" href="lang/ar.html">
+<link rel="import" href="lang/de.html">
+<link rel="import" href="lang/en.html">
+<link rel="import" href="lang/es.html">
+<link rel="import" href="lang/fr.html">
+<link rel="import" href="lang/ja.html">
+<link rel="import" href="lang/ko.html">
+<link rel="import" href="lang/nb.html">
+<link rel="import" href="lang/nl.html">
+<link rel="import" href="lang/pt.html">
+<link rel="import" href="lang/sv.html">
+<link rel="import" href="lang/tr.html">
+<link rel="import" href="lang/zh-tw.html">
+<link rel="import" href="lang/zh.html">
+
+<script src="./util/namespace.js"></script>
+<script>
+	/**
+	* Localizes the d2l-file-viewer components.
+	* @polymerBehavior D2L.PolymerBehaviors.FileViewer.LocalizeBehavior
+	*/
+	window.D2L.PolymerBehaviors.FileViewer.LocalizeBehaviorImpl = {
+		properties: {
+			/**
+			* Localization resources.
+			*/
+			resources: {
+				value: function() {
+					return window.D2L.PolymerBehaviors.FileViewer.LangTerms;
+				}
+			}
+		}
+	};
+
+	/** @polymerBehavior D2L.PolymerBehaviors.FileViewer.LocalizeBehavior */
+	window.D2L.PolymerBehaviors.FileViewer.LocalizeBehavior = [
+		window.D2L.PolymerBehaviors.LocalizeBehavior,
+		window.D2L.PolymerBehaviors.FileViewer.LocalizeBehaviorImpl
+	];
+</script>

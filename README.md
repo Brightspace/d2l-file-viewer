@@ -1,6 +1,5 @@
 # d2l-file-viewer
-[![Bower version][bower-image]][bower-url]
-[![Build status][ci-image]][ci-url]
+[![Build Status](https://travis-ci.com/Brightspace/d2l-file-viewer.svg?branch=master)](https://travis-ci.com/Brightspace/d2l-file-viewer)
 
 
 
@@ -81,7 +80,4 @@ To lint AND run local unit tests:
 npm test
 ```
 
-[bower-url]: http://bower.io/search/?q=d2l-file-viewer
-[bower-image]: https://badge.fury.io/bo/d2l-file-viewer.svg
-[ci-url]: https://travis-ci.org/BrightspaceUI/file-viewer
-[ci-image]: https://travis-ci.org/BrightspaceUI/file-viewer.svg?branch=master
+

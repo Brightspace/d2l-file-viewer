@@ -5,7 +5,8 @@ addons:
   chrome: stable
 script:
 - npm run lint
-- npm run test:polymer:sauce
+- npm run test:polymer:local
+- 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then npm run test:polymer:sauce; fi'
 env:
   global:
   - REPO_NAME=d2l-file-viewer

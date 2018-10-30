@@ -62,7 +62,8 @@
 			is: 'd2l-pdf-viewer',
 			properties: {
 				src: {
-					type: String
+					type: String,
+					observer: '_srcChanged'
 				},
 				_pageLabel: {
 					type: String,
@@ -103,8 +104,6 @@
 
 				// Add event listeners before loading document
 				this._addEventListeners();
-
-				this.$.loadingBar.start();
 
 				pdfjsLib.getDocument({
 					url: this.src
@@ -156,6 +155,9 @@
 						this._resizeThrottleHandle = null;
 					}, 100);
 				}
+			},
+			_srcChanged: function(src) {
+				this.$.loadingBar.start();
 			},
 			_onPagesInitEvent: function() {
 				this._pdfViewer.currentScaleValue = 'page-width';

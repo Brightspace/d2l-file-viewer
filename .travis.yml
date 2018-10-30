@@ -5,4 +5,9 @@ addons:
   chrome: stable
 script:
 - npm run lint
-- npm run test:polymer:local
+- npm run test:polymer:sauce
+env:
+  global:
+  - REPO_NAME=d2l-file-viewer
+  #SAUCE_ACCESS_KEY
+  - secure: AeHYj+zsTPkAJ7+vTLIVcVICRC3svC3nDrqr0S2RGBqdVVYyb95w+ixqZ/IaNQCHxuWImiM/M2mstjJz/Pvo4pTXFlBVPQ3yRPIEodACQBAI8FMjb4V40flGur3KYKGoZQ+jJtj06FFu1adEMBE9EfYDqnvFaRViXWFu4kR6GkUSUP2vjGQ1GzkuxPtufJ01bTwrGquLAgSa70mv2kgyPu/jEbKq/hj94apbTRRywLr3Z4TWKhkPX9Mgtvr4YQbeVdZMLIlXT2MtLFN62FUs1Cgh0Zjf9xch6izAFe2UoJNQAxj/fZFf2E6aRCQ3Lqu/ucZs5S6tx9MW9gPnohRywh5h2bjWahzZjK1WiSV1ctIbzObV4zJtT64T4U1lM6uNFb9cTO2i+fsfbkJhK3iL735XrW9gukTnbcH8qARmvNHKhXjlJmd6dRMe86WlFtu2rocG0uyT+oStC22OeT6kmLBxNLygbIheANhBxDAvkhUl+xuUhebOfwuxhjVroGSWwc4WGOSE+RJ0ikWw8nqUebM5aC4NuodOnUCjwMsODw7JAIjA/I0FE0CER21QDFx7g6GBqqYRd9B6MGxMGbDCVSL0LyHs1hS2/19p6xoMjJfX3umEahvV6vCdkCm30u4gnWjXdYq+ylKBzarxBk8KZMDafhQzbhO7imvCP5dgmzI=

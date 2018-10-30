@@ -113,8 +113,6 @@
 					this._pagesCount = pdfDocument.numPages;
 					this._pageNumber = this._pdfViewer.currentPageNumber;
 
-					this.$.loadingBar.finish();
-
 					pdfLinkService.setDocument(pdfDocument, null);
 				}).catch(() => {
 					this.$.loadingBar.finish();
@@ -162,6 +160,7 @@
 			_onPagesInitEvent: function() {
 				this._pdfViewer.currentScaleValue = 'page-width';
 				this._pageScale = this._pdfViewer.currentScale;
+				this.$.loadingBar.finish();
 			},
 			_onPageChangeEvent: function(evt) {
 				this._pageNumber = evt.pageNumber;

@@ -1,4 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../d2l-page-load-progress/d2l-page-load-progress.html">
 <link rel="import" href="d2l-pdf-viewer-toolbar.html">
 
 <!-- @note: aware that external stylesheets are very deprecated -->
@@ -32,6 +33,7 @@
 				cursor: default;
 			}
 		</style>
+		<d2l-page-load-progress id="loadingBar"></d2l-page-load-progress>
 		<div id="viewerContainer">
 			<div id="viewer" class="pdfViewer"></div>
 		</div>
@@ -102,12 +104,16 @@
 				// Add event listeners before loading document
 				this._addEventListeners();
 
+				this.$.loadingBar.start();
+
 				pdfjsLib.getDocument({
 					url: this.src
 				}).then(pdfDocument => {
 					this._pdfViewer.setDocument(pdfDocument);
 					this._pagesCount = pdfDocument.numPages;
 					this._pageNumber = this._pdfViewer.currentPageNumber;
+
+					this.$.loadingBar.finish();
 
 					pdfLinkService.setDocument(pdfDocument, null);
 				}).catch(() => {

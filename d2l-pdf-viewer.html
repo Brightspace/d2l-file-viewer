@@ -117,6 +117,7 @@
 
 					pdfLinkService.setDocument(pdfDocument, null);
 				}).catch(() => {
+					this.$.loadingBar.finish();
 					this.dispatchEvent(new CustomEvent('d2l-pdf-viewer-load-failed', {
 						bubbles: true,
 						composed: true

@@ -1,4 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../d2l-page-load-progress/d2l-page-load-progress.html">
 <link rel="import" href="d2l-pdf-viewer-toolbar.html">
 
 <!-- @note: aware that external stylesheets are very deprecated -->
@@ -31,7 +32,12 @@
 				right: 0;
 				cursor: default;
 			}
+
+			d2l-page-load-progress[hidden] {
+				display: none !important;
+			}
 		</style>
+		<d2l-page-load-progress id="loadingBar" autohide></d2l-page-load-progress>
 		<div id="viewerContainer">
 			<div id="viewer" class="pdfViewer"></div>
 		</div>
@@ -60,7 +66,8 @@
 			is: 'd2l-pdf-viewer',
 			properties: {
 				src: {
-					type: String
+					type: String,
+					observer: '_srcChanged'
 				},
 				_pageLabel: {
 					type: String,
@@ -111,6 +118,7 @@
 
 					pdfLinkService.setDocument(pdfDocument, null);
 				}).catch(() => {
+					this.$.loadingBar.finish();
 					this.dispatchEvent(new CustomEvent('d2l-pdf-viewer-load-failed', {
 						bubbles: true,
 						composed: true
@@ -152,9 +160,13 @@
 					}, 100);
 				}
 			},
+			_srcChanged: function() {
+				this.$.loadingBar.start();
+			},
 			_onPagesInitEvent: function() {
 				this._pdfViewer.currentScaleValue = 'page-width';
 				this._pageScale = this._pdfViewer.currentScale;
+				this.$.loadingBar.finish();
 			},
 			_onPageChangeEvent: function(evt) {
 				this._pageNumber = evt.pageNumber;

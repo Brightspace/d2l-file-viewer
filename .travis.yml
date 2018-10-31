@@ -4,6 +4,7 @@ node_js:
 addons:
   chrome: stable
 script:
+- set -e
 - npm run lint
 - npm run test:polymer:local
 - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then npm run test:polymer:sauce; fi'

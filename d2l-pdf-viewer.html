@@ -32,8 +32,12 @@
 				right: 0;
 				cursor: default;
 			}
+
+			d2l-page-load-progress[hidden] {
+				display: none !important;
+			}
 		</style>
-		<d2l-page-load-progress id="loadingBar"></d2l-page-load-progress>
+		<d2l-page-load-progress id="loadingBar" autohide></d2l-page-load-progress>
 		<div id="viewerContainer">
 			<div id="viewer" class="pdfViewer"></div>
 		</div>

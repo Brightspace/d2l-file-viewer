@@ -36,7 +36,8 @@
 		Polymer({
 			is: 'd2l-file-viewer',
 			listeners: {
-				'd2l-pdf-viewer-load-failed': '_onFileLoadFailed'
+				'd2l-pdf-viewer-load-failed': '_onFileLoadFailed',
+				'd2l-pdf-viewer-load-complete': '_onFileLoadComplete'
 			},
 			properties: {
 				fileType: {
@@ -47,6 +48,7 @@
 				},
 				loadFailed: {
 					type: Boolean,
+					readOnly: true,
 					reflectToAttribute: true
 				}
 			},
@@ -55,6 +57,9 @@
 			},
 			_onFileLoadFailed: function() {
 				this.loadFailed = true;
+			},
+			_onFileLoadComplete: function() {
+				this.loadFailed = false;
 			}
 		});
 	</script>

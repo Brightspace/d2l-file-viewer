@@ -23,14 +23,12 @@
 				position: relative;
 				overflow: auto;
 				width: 100%;
-				height: calc(100% - 49px);
+				height: 100%;
 			}
 
 			d2l-pdf-viewer-toolbar {
-				position: relative;
-				left: 0;
-				right: 0;
-				cursor: default;
+				position: absolute;
+				bottom: 12px;
 			}
 
 			d2l-page-load-progress[hidden] {
@@ -49,7 +47,8 @@
 			has-page-labels="[[_hasPageLabels]]"
 			page-scale="[[_pageScale]]"
 			min-page-scale="[[_minPageScale]]"
-			max-page-scale="[[_maxPageScale]]">
+			max-page-scale="[[_maxPageScale]]"
+			hidden$="[[!_isLoaded]]">
 		</d2l-pdf-viewer-toolbar>
 	</template>
 	<script>
@@ -68,6 +67,10 @@
 				src: {
 					type: String,
 					observer: '_srcChanged'
+				},
+				_isLoaded: {
+					type: Boolean,
+					value: false
 				},
 				_pageLabel: {
 					type: String,
@@ -170,6 +173,7 @@
 				this._pdfViewer.currentScaleValue = 'page-width';
 				this._pageScale = this._pdfViewer.currentScale;
 				this.$.loadingBar.finish();
+				this._isLoaded = true;
 			},
 			_onPageChangeEvent: function(evt) {
 				this._pageNumber = evt.pageNumber;

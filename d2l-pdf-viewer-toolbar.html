@@ -8,37 +8,30 @@
 <dom-module id="d2l-pdf-viewer-toolbar">
 	<template strip-whitespace>
 		<style>
-			#toolbarContainer {
+			:host {
+				cursor: default;
+				width: 100%;
+			}
+
+			.outer-container {
 				display: flex;
+				justify-content: center;
+			}
+
+			#toolbarContainer {
+				display: inline-flex;
 				align-items: center;
-				justify-content: space-evenly;
 				padding: 10px;
 				position: relative;
 				height: 29px;
-				background: #f1f1f1;
-				background: linear-gradient(to bottom, #f1f1f1 0%,#e4e4e4 100%);
-				box-shadow: inset 1px 0 0 hsla(0,0%,100%,.08),
-							inset 0 1px 1px hsla(0,0%,0%,.15),
-							inset 0 -1px 0 hsla(0,0%,100%,.05),
-							0 1px 0 hsla(0,0%,0%,.15),
-							0 1px 1px hsla(0,0%,0%,.1);
+				background: rgba(86, 90, 92, 0.8);
+				border-radius: 8px;
+				color: white;
+				margin: 0 auto;
 			}
 
-			:host-context([dir="rtl"]) #toolbarContainer {
-				box-shadow: inset -1px 0 0 hsla(0,0%,100%,.08),
-							inset 0 1px 1px hsla(0,0%,0%,.15),
-							inset 0 -1px 0 hsla(0,0%,100%,.05),
-							0 1px 0 hsla(0,0%,0%,.15),
-							0 1px 1px hsla(0,0%,0%,.1);
-			}
-
-			.toolbar-container {
-				display: flex;
-				align-items: center;
-			}
-
-			.right-spacer {
-				width: 68px;
+			#toolbarContainer > * {
+				flex: 0 0 auto;
 			}
 
 			.toolbarLabel {
@@ -59,56 +52,8 @@
 				margin: 4px 0 4px 2px;
 			}
 
-			.toolbarField {
-				padding: 3px 6px;
-				margin: 2px 0 4px 5px;
-				border: 1px solid transparent;
-				border-radius: 2px;
-				background-clip: padding-box;
-				border: 1px solid hsla(0,0%,0%,.35);
-				border-color: hsla(0,0%,0%,.32) hsla(0,0%,0%,.38) hsla(0,0%,0%,.42);
-				box-shadow: 0 1px 0 hsla(0,0%,0%,.05) inset,
-							0 1px 0 hsla(0,0%,100%,.05);
-				outline-style: none;
-				transition-property: background-color, border-color, box-shadow;
-				transition-duration: 150ms;
-				transition-timing-function: ease;
-			}
-
 			#numPages {
-				color: #666666;
-				padding-left: 4px;
-				top: -3px;
-			}
 
-			:host-context([dir="rtl"]) #numPages {
-				padding-left: 0;
-				padding-right: 4px;
-			}
-
-			.toolbarField.pageNumber {
-				-moz-appearance: textfield; /* hides the spinner in moz */
-				min-width: 16px;
-				text-align: center;
-				width: 40px;
-			}
-
-			.toolbarField.pageNumber::-webkit-inner-spin-button,
-			.toolbarField.pageNumber::-webkit-outer-spin-button {
-				-webkit-appearance: none;
-				margin: 0;
-			}
-
-			.toolbarField:hover {
-				border-color: hsla(0,0%,0%,.4) hsla(0,0%,0%,.43) hsla(0,0%,0%,.45);
-			}
-
-			.toolbarField:focus {
-				border-color: hsla(204,100%,65%,.8) hsla(204,100%,65%,.85) hsla(204,100%,65%,.9);
-			}
-
-			:host-context([dir="rtl"]) .toolbarField {
-				margin: 2px 5px 4px 0;
 			}
 
 			.toolbarButton {
@@ -165,9 +110,33 @@
 					display: none;
 				}
 			}
+
+			button {
+				width: 30px;
+				height: 30px;
+				border: 0;
+				background: none;
+			}
+
+			button:hover, button:focus, button:active {
+				background-color: blue;
+			}
+
+			d2l-icon {
+				color: white;
+			}
+
+			span {
+				user-select: none;
+			}
 		</style>
-		<div id="toolbarContainer">
-			<div class="toolbar-container">
+		<div class="outer-container">
+			<div id="toolbarContainer">
+				<span id="pageNumber"
+					class="pageNumber"
+					aria-label$="[[localize('pageLabel')]]">
+					[[localize('pageOfPages', 'pageNumber', pageNumber, 'pagesCount', pagesCount)]]
+				</span>
 				<button id="zoomOut"
 					class="toolbarButton zoomOut"
 					disabled$="[[_zoomOutButtonDisabled(pageScale, minPageScale)]]"
@@ -184,36 +153,11 @@
 					title$="[[localize('zoomInTitle')]]">
 					<d2l-icon icon="d2l-tier1:zoom-in"></d2l-icon>
 				</button>
-			</div>
-			<div class="toolbar-container">
-				<button id="previous"
-					class="toolbarButton pageUp"
-					disabled$="[[_previousButtonDisabled(pageNumber)]]"
-					on-tap="_onTapPreviousPage"
-					aria-label$="[[localize('previousLabel')]]"
-					title$="[[localize('previousTitle')]]">
-					<d2l-icon icon="d2l-tier1:chevron-up"></d2l-icon>
-				</button>
-				<input id="pageNumber"
-					class="toolbarField pageNumber"
-					type$="[[_pageNumberInputType(hasPageLabels)]]"
-					max$="[[_pageNumberInputMax(pagesCount)]]"
-					value="{{_inputPageNumber::input}}"
-					on-change="_onChangePageNumberInput"
-					aria-label$="[[localize('pageLabel')]]">
-				<span id="numPages" class="toolbarLabel">
-					[[_numPagesLabel(hasPageLabels, pageNumber, pagesCount)]]
-				</span>
-				<button id="next"
-					class="toolbarButton pageDown"
-					disabled$="[[_nextButtonDisabled(pageNumber, pagesCount)]]"
-					on-tap="_onTapNextPage"
-					aria-label$="[[localize('nextLabel')]]"
-					title$="[[localize('nextTitle')]]">
-					<d2l-icon icon="d2l-tier1:chevron-down"></d2l-icon>
+				<button id="fullScreen"
+					class="toolbarButton">
+					<d2l-icon icon="d2l-tier1:fullscreen"></d2l-icon>
 				</button>
 			</div>
-			<span class="right-spacer"></span>
 		</div>
 	</template>
 	<script>
@@ -223,15 +167,11 @@
 				pageLabel: String,
 				pageNumber: {
 					type: Number,
-					observer: '_onPageNumberChanged'
+					value: 0
 				},
 				pagesCount: {
 					type: Number,
 					value: 0
-				},
-				hasPageLabels: {
-					type: Boolean,
-					value: false
 				},
 				pageScale: {
 					type: Number,
@@ -264,30 +204,6 @@
 			],
 
 			// --element attributes--
-			// compute page count label
-			_numPagesLabel: function(hasPageLabels, pageNumber, pagesCount) {
-				return hasPageLabels ?
-					this.localize('pageOfPages', 'pageNumber', pageNumber, 'pagesCount', pagesCount) :
-					this.localize('pageOf', 'pagesCount', pagesCount);
-			},
-			// compute page number input type
-			_pageNumberInputType: function(hasPageLabels) {
-				return hasPageLabels ?
-					'text' :
-					'number';
-			},
-			// compute page number input maximum
-			_pageNumberInputMax: function(pagesCount) {
-				return pagesCount;
-			},
-			// compute previous button disabled
-			_previousButtonDisabled: function(pageNumber) {
-				return pageNumber <= 1;
-			},
-			// compute next button disabled
-			_nextButtonDisabled: function(pageNumber, pagesCount) {
-				return pageNumber >= pagesCount;
-			},
 			// compute zoom out button disabled
 			_zoomOutButtonDisabled: function(pageScale, minPageScale) {
 				return pageScale <= minPageScale || Math.abs(pageScale - minPageScale) < Number.EPSILON;
@@ -297,18 +213,6 @@
 				return pageScale >= maxPageScale || Math.abs(pageScale - maxPageScale) < Number.EPSILON;
 			},
 			// --events--
-			// click previous page
-			_onTapPreviousPage: function() {
-				this.dispatchEvent(
-					new CustomEvent('d2l-pdf-viewer-toolbar-previous')
-				);
-			},
-			// click next page
-			_onTapNextPage: function() {
-				this.dispatchEvent(
-					new CustomEvent('d2l-pdf-viewer-toolbar-next')
-				);
-			},
 			// click zoom in
 			_onTapZoomIn: function() {
 				this.dispatchEvent(
@@ -320,26 +224,6 @@
 				this.dispatchEvent(
 					new CustomEvent('d2l-pdf-viewer-toolbar-zoom-out')
 				);
-			},
-			// change page number
-			_onChangePageNumberInput: function() {
-				if (this._inputPageNumber > this.pagesCount || this._inputPageNumber < 1) {
-					this._inputPageNumber = this.pageNumber;
-					return;
-				}
-
-				this.dispatchEvent(
-					new CustomEvent(
-						'd2l-pdf-viewer-toolbar-page-change', {
-							detail: {
-								page: this.$.pageNumber.value
-							}
-						}
-					)
-				);
-			},
-			_onPageNumberChanged: function(newPageNumber) {
-				this._inputPageNumber = newPageNumber;
 			}
 		});
 	</script>

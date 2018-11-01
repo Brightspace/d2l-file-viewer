@@ -1,5 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../d2l-page-load-progress/d2l-page-load-progress.html">
+<link rel="import" href="../fullscreen-api/fullscreen-api.html">
 <link rel="import" href="d2l-pdf-viewer-toolbar.html">
 
 <!-- @note: aware that external stylesheets are very deprecated -->
@@ -17,6 +18,13 @@
 				width: 100%;
 				height: 100%;
 				background-color: grey;
+			}
+
+			#pdfContainer {
+				display: inline-block;
+				position: relative;
+				width: 100%;
+				height: 100%;
 			}
 
 			#viewerContainer {
@@ -37,20 +45,28 @@
 				display: none !important;
 			}
 		</style>
-		<d2l-page-load-progress id="loadingBar" autohide></d2l-page-load-progress>
-		<div id="viewerContainer">
-			<div id="viewer" class="pdfViewer"></div>
+		<fullscreen-api
+			id="fsapi"
+			target="#pdfContainer"
+			fullscreen-available="{{_fullscreenAvailable}}">
+		</fullscreen-api>
+		<div id="pdfContainer">
+			<d2l-page-load-progress id="loadingBar" autohide></d2l-page-load-progress>
+			<div id="viewerContainer">
+				<div id="viewer" class="pdfViewer"></div>
+			</div>
+			<d2l-pdf-viewer-toolbar
+				id="toolbar"
+				page-label="[[_pageLabel]]"
+				page-number="[[_pageNumber]]"
+				pages-count="[[_pagesCount]]"
+				has-page-labels="[[_hasPageLabels]]"
+				page-scale="[[_pageScale]]"
+				min-page-scale="[[_minPageScale]]"
+				max-page-scale="[[_maxPageScale]]",
+				fullscreen-available="[[_fullscreenAvailable]]">
+			</d2l-pdf-viewer-toolbar>
 		</div>
-		<d2l-pdf-viewer-toolbar
-			id="toolbar"
-			page-label="[[_pageLabel]]"
-			page-number="[[_pageNumber]]"
-			pages-count="[[_pagesCount]]"
-			has-page-labels="[[_hasPageLabels]]"
-			page-scale="[[_pageScale]]"
-			min-page-scale="[[_minPageScale]]"
-			max-page-scale="[[_maxPageScale]]">
-		</d2l-pdf-viewer-toolbar>
 	</template>
 	<script>
 		/* global pdfjsViewer, pdfjsLib */
@@ -93,7 +109,8 @@
 				_maxPageScale: {
 					type: Number,
 					value: 2
-				}
+				},
+				_fullscreenAvailable: Boolean
 			},
 			ready: function() {
 				// (Optionally) enable hyperlinks within PDF files.
@@ -141,6 +158,7 @@
 				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-in', this._onZoomInEvent.bind(this));
 				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-out', this._onZoomOutEvent.bind(this));
 				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-page-change', this._onPageNumberChangedEvent.bind(this));
+				this.$.toolbar.addEventListener('d2l-pdf-viewer-fullscreen', this._onFullscreenEvent.bind(this));
 			},
 			_resize: function() {
 				if (!this._resizeThrottleHandle) {
@@ -187,6 +205,9 @@
 				var newPage = parseInt(evt.detail.page);
 
 				this._setPageNumber(newPage);
+			},
+			_onFullscreenEvent: function() {
+				this.$.fsapi.toggleFullscreen();
 			},
 			_addDeltaZoom: function(delta) {
 				var newZoom = this._pdfViewer.currentScale + delta;

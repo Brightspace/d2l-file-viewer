@@ -213,7 +213,16 @@
 					<d2l-icon icon="d2l-tier1:chevron-down"></d2l-icon>
 				</button>
 			</div>
-			<span class="right-spacer"></span>
+			<div class="toolbar-container">
+				<button id="fullscreen"
+					class="toolbarButton fullscreen"
+					disabled$="[[!fullscreenAvailable]]"
+					on-tap="_onTapFullscreen"
+					aria-label="Fullscreen"
+					title="Fullscreen">
+					<d2l-icon icon="d2l-tier1:fullscreen"></d2l-icon>
+				</button>
+			</div>
 		</div>
 	</template>
 	<script>
@@ -256,6 +265,10 @@
 				maxPageScale: {
 					type: Number,
 					value: 0
+				},
+				fullscreenAvailable: {
+					type: Boolean,
+					value: false
 				}
 			},
 
@@ -340,6 +353,11 @@
 			},
 			_onPageNumberChanged: function(newPageNumber) {
 				this._inputPageNumber = newPageNumber;
+			},
+			_onTapFullscreen: function() {
+				this.dispatchEvent(
+					new CustomEvent('d2l-pdf-viewer-fullscreen')
+				);
 			}
 		});
 	</script>

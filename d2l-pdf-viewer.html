@@ -132,6 +132,13 @@
 					return;
 				}
 
+				let preLoadTask = Promise.resolve();
+
+				if (this._pdfLoadingTask) {
+					preLoadTask = this._pdfLoadingTask.destroy();
+					this._pdfLoadingTask = null;
+				}
+
 				if (this._pdfDocument) {
 					this._pdfDocument.destroy();
 					this._pdfViewer.setDocument(null);
@@ -140,8 +147,11 @@
 					this._pdfDocument = null;
 				}
 
+				preLoadTask.then(() => this._loadDocument(src));
+			},
+			_loadDocument: function(src) {
 				this._onLoadStart();
-				pdfjsLib.getDocument({
+				this._loadingTask = pdfjsLib.getDocument({
 					url: src
 				}).then(pdfDocument => {
 					this._pdfDocument = pdfDocument;

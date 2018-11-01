@@ -33,7 +33,7 @@
 				cursor: default;
 			}
 
-			d2l-page-load-progress[hidden] {
+			[hidden] {
 				display: none !important;
 			}
 		</style>
@@ -66,8 +66,7 @@
 			is: 'd2l-pdf-viewer',
 			properties: {
 				src: {
-					type: String,
-					observer: '_srcChanged'
+					type: String
 				},
 				_pageLabel: {
 					type: String,
@@ -95,45 +94,23 @@
 					value: 2
 				}
 			},
+			observers: [
+				'_onSrcChanged(src, isAttached)'
+			],
 			ready: function() {
-				// (Optionally) enable hyperlinks within PDF files.
-				var pdfLinkService = new pdfjsViewer.PDFLinkService();
+				// Create PDF.js viewer and related services
+				this._pdfLinkService = new pdfjsViewer.PDFLinkService();
 
 				this._pdfViewer = new pdfjsViewer.PDFViewer({
 					container: this.$.viewerContainer,
-					linkService: pdfLinkService
+					linkService: this._pdfLinkService
 				});
 
-				pdfLinkService.setViewer(this._pdfViewer);
+				this._pdfLinkService.setViewer(this._pdfViewer);
 
-				// Add event listeners before loading document
-				this._addEventListeners();
-
-				pdfjsLib.getDocument({
-					url: this.src
-				}).then(pdfDocument => {
-					this._pdfViewer.setDocument(pdfDocument);
-					this._pagesCount = pdfDocument.numPages;
-					this._pageNumber = this._pdfViewer.currentPageNumber;
-
-					pdfLinkService.setDocument(pdfDocument, null);
-				}).catch(() => {
-					this.$.loadingBar.finish();
-					this.dispatchEvent(new CustomEvent('d2l-pdf-viewer-load-failed', {
-						bubbles: true,
-						composed: true
-					}));
-				});
-			},
-			detached: function() {
-				window.removeEventListener('resize', this._resize);
-			},
-			_addEventListeners: function() {
-				this._resize = this._resize.bind(this);
-
-				window.addEventListener('resize', this._resize);
-
+				// Add local DOM event listeners
 				this.$.viewerContainer.addEventListener('pagesinit', this._onPagesInitEvent.bind(this));
+				this.$.viewerContainer.addEventListener('pagerendered', this._onPageRenderedEvent.bind(this));
 				this.$.viewerContainer.addEventListener('pagechange', this._onPageChangeEvent.bind(this));
 
 				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-previous', this._onPrevPageEvent.bind(this));
@@ -141,6 +118,50 @@
 				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-in', this._onZoomInEvent.bind(this));
 				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-out', this._onZoomOutEvent.bind(this));
 				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-page-change', this._onPageNumberChangedEvent.bind(this));
+			},
+			attached: function() {
+				this._resize = this._resize.bind(this);
+
+				window.addEventListener('resize', this._resize);
+			},
+			detached: function() {
+				window.removeEventListener('resize', this._resize);
+			},
+			_onSrcChanged: function(src, isAttached) {
+				if (!src || !isAttached) {
+					return;
+				}
+
+				if (this._pdfDocument) {
+					this._pdfDocument.destroy();
+					this._pdfViewer.setDocument(null);
+					this._pdfLinkService.setDocument(null);
+
+					this._pdfDocument = null;
+				}
+
+				this._onLoadStart();
+				pdfjsLib.getDocument({
+					url: src
+				}).then(pdfDocument => {
+					this._pdfDocument = pdfDocument;
+					this._pdfViewer.setDocument(pdfDocument);
+					this._pagesCount = pdfDocument.numPages;
+					this._pageNumber = this._pdfViewer.currentPageNumber;
+
+					this._pdfLinkService.setDocument(pdfDocument, null);
+
+					this.dispatchEvent(new CustomEvent('d2l-pdf-viewer-load-complete', {
+						bubbles: true,
+						composed: true
+					}));
+				}).catch(() => {
+					this._onLoadFinish();
+					this.dispatchEvent(new CustomEvent('d2l-pdf-viewer-load-failed', {
+						bubbles: true,
+						composed: true
+					}));
+				});
 			},
 			_resize: function() {
 				if (!this._resizeThrottleHandle) {
@@ -160,13 +181,12 @@
 					}, 100);
 				}
 			},
-			_srcChanged: function() {
-				this.$.loadingBar.start();
-			},
 			_onPagesInitEvent: function() {
 				this._pdfViewer.currentScaleValue = 'page-width';
 				this._pageScale = this._pdfViewer.currentScale;
-				this.$.loadingBar.finish();
+			},
+			_onPageRenderedEvent: function() {
+				this._onLoadFinish();
 			},
 			_onPageChangeEvent: function(evt) {
 				this._pageNumber = evt.pageNumber;
@@ -208,6 +228,16 @@
 				);
 
 				this._pageScale = this._pdfViewer.currentScale;
+			},
+			_onLoadStart: function() {
+				this._isLoading = true;
+				this.$.loadingBar.start();
+			},
+			_onLoadFinish: function() {
+				if (this._isLoading) {
+					this._isLoading = false;
+					this.$.loadingBar.finish();
+				}
 			}
 		});
 	</script>

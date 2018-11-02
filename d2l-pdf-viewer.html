@@ -97,7 +97,7 @@
 			},
 			ready: function() {
 				pdfjsLib.GlobalWorkerOptions.workerSrc =
-					this.resolveUrl('bower_components/pdfjs-dist/build/pdf.worker.js');
+					this.importPath + '../pdfjs-dist/build/pdf.worker.min.js';
 
 				// (Optionally) enable hyperlinks within PDF files.
 				var pdfLinkService = new pdfjsViewer.PDFLinkService();

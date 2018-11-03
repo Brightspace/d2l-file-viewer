@@ -1,5 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../d2l-page-load-progress/d2l-page-load-progress.html">
+<link rel="import" href="../fullscreen-api/fullscreen-api.html">
 <link rel="import" href="d2l-pdf-viewer-toolbar.html">
 
 <!-- @note: aware that external stylesheets are very deprecated -->
@@ -31,25 +32,44 @@
 				bottom: 12px;
 			}
 
+			d2l-pdf-viewer-toolbar[show] {
+				transition-property: all;
+				transition-duration: 500ms;
+				opacity: 1;
+				/* visibility: visible; */
+				pointer-events: auto;
+			}
+
+			d2l-pdf-viewer-toolbar:not([show]) {
+				transition-property: all;
+				transition-duration: 500ms;
+				opacity: 0;
+				/* visibility: hidden; */
+				pointer-events: none;
+			}
+
 			d2l-page-load-progress[hidden] {
 				display: none !important;
 			}
 		</style>
+
+		<fullscreen-api id="fsApi" target="[[_getFullscreenTarget()]]" fullscreen="{{_isFullscreen}}"></fullscreen-api>
+
 		<d2l-page-load-progress id="loadingBar" autohide></d2l-page-load-progress>
 		<div id="viewerContainer">
 			<div id="viewer" class="pdfViewer"></div>
 		</div>
 		<d2l-pdf-viewer-toolbar
 			id="toolbar"
-			page-label="[[_pageLabel]]"
 			page-number="[[_pageNumber]]"
 			pages-count="[[_pagesCount]]"
-			has-page-labels="[[_hasPageLabels]]"
 			page-scale="[[_pageScale]]"
-			min-page-scale="[[_minPageScale]]"
-			max-page-scale="[[_maxPageScale]]"
-			hidden$="[[!_isLoaded]]">
+			min-page-scale="[[minPageScale]]"
+			max-page-scale="[[maxPageScale]]"
+			is-fullscreen="[[_isFullscreen]]"
+			show$="[[_showToolbar]]">
 		</d2l-pdf-viewer-toolbar>
+
 	</template>
 	<script>
 		/* global pdfjsViewer, pdfjsLib */
@@ -64,17 +84,29 @@
 		Polymer({
 			is: 'd2l-pdf-viewer',
 			properties: {
+				minPageScale: {
+					type: Number,
+					value: 0.1
+				},
+				maxPageScale: {
+					type: Number,
+					value: 5
+				},
 				src: {
 					type: String,
 					observer: '_srcChanged'
+				},
+				_isFullscreen: {
+					type: Boolean,
+					value: false
 				},
 				_isLoaded: {
 					type: Boolean,
 					value: false
 				},
-				_pageLabel: {
-					type: String,
-					value: null
+				_hasActivity: {
+					type: Boolean,
+					value: false
 				},
 				_pageNumber: {
 					type: Number
@@ -89,14 +121,15 @@
 				_pageScale: {
 					type: Number
 				},
-				_minPageScale: {
-					type: Number,
-					value: 0.1
-				},
-				_maxPageScale: {
-					type: Number,
-					value: 2
+				_showToolbar: {
+					type: Boolean,
+					computed: '_computeShowToolbar(_isLoaded, _hasActivity)'
 				}
+			},
+			listeners: {
+				'mouseenter': '_onMouseEnter',
+				'mouseleave': '_onMouseLeave',
+				'focusin': '_onActivity'
 			},
 			ready: function() {
 				pdfjsLib.GlobalWorkerOptions.workerSrc =
@@ -135,6 +168,7 @@
 				window.removeEventListener('resize', this._resize);
 			},
 			_addEventListeners: function() {
+				this._onMouseEnter = this._onMouseEnter.bind(this); // don't add yet- just bind
 				this._resize = this._resize.bind(this);
 
 				window.addEventListener('resize', this._resize);
@@ -147,6 +181,7 @@
 				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-in', this._onZoomInEvent.bind(this));
 				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-out', this._onZoomOutEvent.bind(this));
 				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-page-change', this._onPageNumberChangedEvent.bind(this));
+				this.$.toolbar.addEventListener('d2l-pdf-viewer-toggle-fullscreen', this._onFullscreenEvent.bind(this));
 			},
 			_resize: function() {
 				if (!this._resizeThrottleHandle) {
@@ -190,6 +225,14 @@
 			_onZoomOutEvent: function() {
 				this._addDeltaZoom(-0.1);
 			},
+			_onFullscreenEvent: function() {
+				this.$.fsApi.toggleFullscreen();
+
+				// If scale is a special type (eg. 'page-width'), ensure we maintain that on scale
+				requestAnimationFrame(() => {
+					this._pageScale = this._pdfViewer.currentScale;
+				});
+			},
 			_onPageNumberChangedEvent: function(evt) {
 				var newPage = parseInt(evt.detail.page);
 
@@ -210,11 +253,37 @@
 			},
 			_setScale: function(newScale) {
 				this._pdfViewer.currentScaleValue = Math.max(
-					this._minPageScale,
-					Math.min(this._maxPageScale, newScale)
+					this.minPageScale,
+					Math.min(this.maxPageScale, newScale)
 				);
 
 				this._pageScale = this._pdfViewer.currentScale;
+			},
+			_getFullscreenTarget: function() {
+				return this;
+			},
+			_onMouseEnter: function() {
+				this.addEventListener('mousemove', this._onMouseMove);
+			},
+			_onMouseLeave: function() {
+				this.removeEventListener('mousemove', this._onMouseMove);
+			},
+			_onMouseMove: function() {
+				this._onActivity();
+			},
+			_onActivity: function() {
+				this._hasActivity = true;
+
+				if (this._fadeOutTimer) {
+					clearTimeout(this._fadeOutTimer);
+				}
+
+				this._fadeOutTimer = setTimeout(() => {
+					this._hasActivity = false;
+				}, 2000);
+			},
+			_computeShowToolbar: function(isLoaded, hasActivity) {
+				return isLoaded && hasActivity;
 			}
 		});
 	</script>

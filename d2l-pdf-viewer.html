@@ -3,10 +3,10 @@
 <link rel="import" href="d2l-pdf-viewer-toolbar.html">
 
 <!-- @note: aware that external stylesheets are very deprecated -->
-<link rel="stylesheet" href="../pdfjs-dist/web/pdf_viewer.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf_viewer.css">
 
-<script src="../pdfjs-dist/build/pdf.js"></script>
-<script src="../pdfjs-dist/web/pdf_viewer.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf_viewer.js"></script>
 
 <dom-module id="d2l-pdf-viewer">
 	<template strip-whitespace>
@@ -69,12 +69,6 @@
 					type: String,
 					observer: '_srcChanged'
 				},
-				workerSrc: {
-					type: String,
-					value: () => {
-						this.importPath + '../pdfjs-dist/build/pdf.worker.min.js';
-					}
-				},
 				_pageLabel: {
 					type: String,
 					value: null
@@ -102,7 +96,8 @@
 				}
 			},
 			ready: function() {
-				pdfjsLib.GlobalWorkerOptions.workerSrc = this.workerSrc;
+				pdfjsLib.GlobalWorkerOptions.workerSrc =
+					'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf.worker.min.js';
 
 				// (Optionally) enable hyperlinks within PDF files.
 				var pdfLinkService = new pdfjsViewer.PDFLinkService();

@@ -19,7 +19,6 @@
     "d2l-localize-behavior": "^1.1.3",
     "d2l-typography": "^6.1.3",
     "d2l-video": "^2.0.2",
-    "pdfjs-dist": "^2.0.550",
     "polymer": "Polymer/polymer#1.9 - 2",
     "d2l-page-load-progress": "^2.2.0"
   },

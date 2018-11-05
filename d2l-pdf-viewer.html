@@ -69,6 +69,12 @@
 					type: String,
 					observer: '_srcChanged'
 				},
+				workerSrc: {
+					type: String,
+					value: () => {
+						this.importPath + '../pdfjs-dist/build/pdf.worker.min.js';
+					}
+				},
 				_pageLabel: {
 					type: String,
 					value: null
@@ -96,6 +102,8 @@
 				}
 			},
 			ready: function() {
+				pdfjsLib.GlobalWorkerOptions.workerSrc = this.workerSrc;
+
 				// (Optionally) enable hyperlinks within PDF files.
 				var pdfLinkService = new pdfjsViewer.PDFLinkService();
 

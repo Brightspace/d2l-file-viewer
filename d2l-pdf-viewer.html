@@ -36,7 +36,6 @@
 				transition-property: all;
 				transition-duration: 500ms;
 				opacity: 1;
-				/* visibility: visible; */
 				pointer-events: auto;
 			}
 
@@ -44,7 +43,6 @@
 				transition-property: all;
 				transition-duration: 500ms;
 				opacity: 0;
-				/* visibility: hidden; */
 				pointer-events: none;
 			}
 
@@ -53,7 +51,12 @@
 			}
 		</style>
 
-		<fullscreen-api id="fsApi" target="[[_getFullscreenTarget()]]" fullscreen="{{_isFullscreen}}"></fullscreen-api>
+		<fullscreen-api
+			id="fsApi"
+			target="[[_getFullscreenTarget()]]"
+			fullscreen="{{_isFullscreen}}"
+			fullscreen-available="{{_isFullscreenAvailable}}">
+		</fullscreen-api>
 
 		<d2l-page-load-progress id="loadingBar" autohide></d2l-page-load-progress>
 		<div id="viewerContainer">
@@ -66,6 +69,7 @@
 			page-scale="[[_pageScale]]"
 			min-page-scale="[[minPageScale]]"
 			max-page-scale="[[maxPageScale]]"
+			fullscreen-available="[[_isFullscreenAvailable]]"
 			is-fullscreen="[[_isFullscreen]]"
 			show$="[[_showToolbar]]">
 		</d2l-pdf-viewer-toolbar>
@@ -100,11 +104,15 @@
 					type: Boolean,
 					value: false
 				},
+				_isFullscreenAvailable: {
+					type: Boolean,
+					value: false
+				},
 				_isLoaded: {
 					type: Boolean,
 					value: false
 				},
-				_hasActivity: {
+				_hasRecentInteraction: {
 					type: Boolean,
 					value: false
 				},
@@ -123,13 +131,16 @@
 				},
 				_showToolbar: {
 					type: Boolean,
-					computed: '_computeShowToolbar(_isLoaded, _hasActivity)'
+					computed: '_computeShowToolbar(_isLoaded, _hasRecentInteraction)'
 				}
 			},
 			listeners: {
 				'mouseenter': '_onMouseEnter',
 				'mouseleave': '_onMouseLeave',
-				'focusin': '_onActivity'
+				'touchstart': '_onInteraction',
+				'touchend': '_onInteraction',
+				'touchmove': '_onInteraction',
+				'focusin': '_onInteraction'
 			},
 			ready: function() {
 				pdfjsLib.GlobalWorkerOptions.workerSrc =
@@ -181,7 +192,7 @@
 				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-in', this._onZoomInEvent.bind(this));
 				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-out', this._onZoomOutEvent.bind(this));
 				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-page-change', this._onPageNumberChangedEvent.bind(this));
-				this.$.toolbar.addEventListener('d2l-pdf-viewer-toggle-fullscreen', this._onFullscreenEvent.bind(this));
+				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', this._onFullscreenEvent.bind(this));
 			},
 			_resize: function() {
 				if (!this._resizeThrottleHandle) {
@@ -221,14 +232,17 @@
 			},
 			_onZoomInEvent: function() {
 				this._addDeltaZoom(0.1);
+				this._onInteraction();
 			},
 			_onZoomOutEvent: function() {
 				this._addDeltaZoom(-0.1);
+				this._onInteraction();
 			},
 			_onFullscreenEvent: function() {
 				this.$.fsApi.toggleFullscreen();
+				this._onInteraction();
 
-				// If scale is a special type (eg. 'page-width'), ensure we maintain that on scale
+				// If scale is a special type (eg. 'page-width'), ensure we maintain that
 				requestAnimationFrame(() => {
 					this._pageScale = this._pdfViewer.currentScale;
 				});
@@ -269,21 +283,19 @@
 				this.removeEventListener('mousemove', this._onMouseMove);
 			},
 			_onMouseMove: function() {
-				this._onActivity();
+				this._onInteraction();
 			},
-			_onActivity: function() {
-				this._hasActivity = true;
+			_onInteraction: function() {
+				this._hasRecentInteraction = true;
 
-				if (this._fadeOutTimer) {
-					clearTimeout(this._fadeOutTimer);
-				}
+				clearTimeout(this._recentInteractionTimer);
 
-				this._fadeOutTimer = setTimeout(() => {
-					this._hasActivity = false;
+				this._recentInteractionTimer = setTimeout(() => {
+					this._hasRecentInteraction = false;
 				}, 2000);
 			},
-			_computeShowToolbar: function(isLoaded, hasActivity) {
-				return isLoaded && hasActivity;
+			_computeShowToolbar: function(isLoaded, hasRecentInteraction) {
+				return !!isLoaded && !!hasRecentInteraction;
 			}
 		});
 	</script>

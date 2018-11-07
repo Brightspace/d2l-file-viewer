@@ -1,0 +1,110 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../d2l-colors/d2l-colors.html">
+<link rel="import" href="../d2l-icons/d2l-icon.html">
+<link rel="import" href="../d2l-typography/d2l-typography-shared-styles.html">
+<link rel="import" href="localize-behavior.html">
+
+<dom-module id="d2l-pdf-viewer-toolbar-button">
+	<template strip-whitespace>
+		<style>
+			:host {
+				margin: 6px;
+				outline: none;
+				user-select: none;
+			}
+
+			:host[disabled] {
+				opacity: .2;
+			}
+
+			:host:hover:not([disabled]),
+			:host.keyboard-focus:not([disabled]) {
+				background-color: var(--d2l-color-celestine-minus-1);
+			}
+		</style>
+		<slot></slot>
+	</template>
+	<script>
+		Polymer({
+			is: 'd2l-pdf-viewer-toolbar-button',
+
+			hostAttributes: {
+				tabindex: 0,
+				role: 'button'
+			},
+
+			properties: {
+				action: {
+					type: String
+				},
+				disabled: {
+					type: Boolean,
+					value: true,
+					reflectToAttribute: true
+				},
+				ariaDisabled: {
+					type: Boolean,
+					value: true,
+					reflectToAttribute: true,
+					computed: '_computeAriaDisabled(disabled)'
+				}
+			},
+
+			listeners: {
+				'mousedown': '_onPointerDown',
+				'touchstart': '_onPointerDown',
+				'mouseup': '_onPointerUp',
+				'touchend': '_onPointerUp',
+				'touchcancel': '_onPointerUp',
+				'focusin': '_onFocusIn',
+				'focusout': '_onFocusOut',
+				'keypress': '_onKeypress',
+				'tap': '_sendActivationEvent'
+			},
+
+			_onPointerDown: function() {
+				this._pointerDown = true;
+			},
+
+			_onPointerUp: function() {
+				this._pointerDown = false;
+			},
+
+			_onFocusIn: function() {
+				if (!this._pointerDown) {
+					this.classList.add('keyboard-focus');
+				}
+			},
+
+			_onFocusOut: function() {
+				this.classList.remove('keyboard-focus');
+			},
+
+			_onKeypress: function(e) {
+				switch (e.keyCode) {
+					case 13:
+					case 32:
+						this._sendActivationEvent();
+						break;
+				}
+			},
+
+			_sendActivationEvent: function() {
+				if (this.disabled) {
+					return;
+				}
+
+				this.dispatchEvent(new CustomEvent('d2l-pdf-toolbar-button-activation', {
+					bubbles: true,
+					detail: {
+						action: this.action
+					}
+				}));
+			},
+
+			_computeAriaDisabled: function(disabled) {
+				return !!disabled;
+			}
+		});
+	</script>
+</dom-module>

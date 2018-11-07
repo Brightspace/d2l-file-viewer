@@ -1,7 +1,9 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../d2l-colors/d2l-colors.html">
 <link rel="import" href="../d2l-icons/d2l-icon.html">
 <link rel="import" href="../d2l-typography/d2l-typography-shared-styles.html">
-<link rel="import" href="localize-behavior.html">
+<link rel="import" href="./d2l-pdf-viewer-toolbar-button.html">
+<link rel="import" href="./localize-behavior.html">
 
 <script src="./util/namespace.js"></script>
 
@@ -20,17 +22,17 @@
 			}
 
 			.toolbar-container {
-				display: inline-flex;
 				align-items: center;
-				position: relative;
-				background: rgba(86, 90, 92, 0.8);
+				background-color: rgba(86, 90, 92, 0.8); /* can't use d2l-colors (ferrite) with opacity on backgrounds in pure CSS */
 				border-radius: 8px;
 				color: white;
+				display: inline-flex;
+				position: relative;
 			}
 
 			.control-container {
-				display: inline-flex;
 				align-items: center;
+				display: inline-flex;
 				position: relative;
 			}
 
@@ -40,51 +42,12 @@
 			}
 
 			.toolbar-label {
-				@apply --d2l-label-text;
-				font-size: 0.8rem;
-				min-width: 16px;
-				padding: 3px 6px 3px 2px;
-				margin: 4px 2px 4px 0;
-				border: 1px solid transparent;
-				border-radius: 2px;
-				text-align: left;
-				cursor: default;
-			}
-
-			:host-context([dir="rtl"]) .toolbar-label {
-				padding: 3px 2px 3px 6px;
-				margin: 4px 0 4px 2px;
-			}
-
-			.toolbar-button {
-				border: 0 none;
-				background: none;
-				margin: 6px;
-				min-width: 16px;
-				border-radius: 2px;
-				outline: none;
-			}
-
-			.toolbar-button[disabled] {
-				opacity: .2;
-			}
-
-			.toolbar-button:hover:not(:disabled),
-			.toolbar-button:focus:not(:disabled) {
-				background-color: blue;
-			}
-
-			:host-context([dir="rtl"]) .toolbar-button {
-				margin: 2px 0 4px 2px;
+				@apply --d2l-body-compact-text;
 			}
 
 			d2l-icon {
-				padding: 6px;
 				color: white;
-			}
-
-			span {
-				user-select: none;
+				padding: 6px;
 			}
 
 			.spacer {
@@ -111,39 +74,31 @@
 			<div class="toolbar-container">
 				<div class="info-container">
 					<span id="pageNumber"
-						class="pageNumber"
+						class="toolbar-label"
 						aria-label$="[[localize('pageLabel')]]">
 						[[localize('pageOfPages', 'pageNumber', pageNumber, 'pagesCount', pagesCount)]]
 					</span>
 				</div>
 				<div class="control-container">
-					<div id="zoomOut"
-						class="toolbar-button zoomOut"
-						disabled$="[[_zoomOutButtonDisabled(pageScale, minPageScale)]]"
-						on-tap="_onTapZoomOut"
-						on-mousedown="_onButtonMouseDown"
+					<d2l-pdf-viewer-toolbar-button
+						disabled="[[_zoomOutButtonDisabled(pageScale, minPageScale)]]"
+						action="zoom-out"
 						aria-label$="[[localize('zoomOutLabel')]]"
-						title$="[[localize('zoomOutTitle')]]"
-						tabindex="0">
+						title$="[[localize('zoomOutTitle')]]">
 						<d2l-icon icon="d2l-tier1:zoom-out"></d2l-icon>
-					</div>
-					<div id="zoomIn"
-						class="toolbar-button zoomIn"
-						disabled$="[[_zoomInButtonDisabled(pageScale, maxPageScale)]]"
-						on-tap="_onTapZoomIn"
-						on-mousedown="_onButtonMouseDown"
+					</d2l-pdf-viewer-toolbar-button>
+					<d2l-pdf-viewer-toolbar-button
+						disabled="[[_zoomInButtonDisabled(pageScale, maxPageScale)]]"
+						action="zoom-in"
 						aria-label$="[[localize('zoomInLabel')]]"
-						title$="[[localize('zoomInTitle')]]"
-						tabindex="0">
+						title$="[[localize('zoomInTitle')]]">
 						<d2l-icon icon="d2l-tier1:zoom-in"></d2l-icon>
-					</div>
-					<div id="fullScreen"
-						class="toolbar-button"
-						on-tap="_onTapFullscreen"
-						on-mousedown="_onButtonMouseDown"
-						tabindex="0">
+					</d2l-pdf-viewer-toolbar-button>
+					<d2l-pdf-viewer-toolbar-button
+						disabled="[[!fullscreenAvailable]]"
+						action="toggle-fullscreen">
 						<d2l-icon icon="[[_getFullscreenIcon(isFullscreen)]]"></d2l-icon>
-					</div>
+					</d2l-pdf-viewer-toolbar-button>
 				</div>
 			</div>
 		</div>
@@ -152,34 +107,13 @@
 		Polymer({
 			is: 'd2l-pdf-viewer-toolbar',
 			properties: {
-				pageLabel: String,
-				pageNumber: {
-					type: Number,
-					value: 0
-				},
-				pagesCount: {
-					type: Number,
-					value: 0
+				fullscreenAvailable: {
+					type: Boolean,
+					value: false
 				},
 				isFullscreen: {
 					type: Boolean,
 					value: false
-				},
-				pageScale: {
-					type: Number,
-					value: 0
-				},
-				_minScale: {
-					type: Number,
-					value: 0
-				},
-				_maxScale: {
-					type: Number,
-					value: 0
-				},
-				_inputPageNumber: {
-					type: Number,
-					value: 0
 				},
 				minPageScale: {
 					type: Number,
@@ -188,42 +122,47 @@
 				maxPageScale: {
 					type: Number,
 					value: 0
+				},
+				pagesCount: {
+					type: Number,
+					value: 0
+				},
+				pageNumber: {
+					type: Number,
+					value: 0
+				},
+				pageScale: {
+					type: Number,
+					value: 0
 				}
+			},
+
+			listeners: {
+				'd2l-pdf-toolbar-button-activation': '_onToolbarButtonActivation'
 			},
 
 			behaviors: [
 				window.D2L.PolymerBehaviors.FileViewer.LocalizeBehavior
 			],
 
-			// --element attributes--
-			// compute zoom out button disabled
+			_getEventTarget: function() {
+				return this;
+			},
 			_zoomOutButtonDisabled: function(pageScale, minPageScale) {
 				return pageScale <= minPageScale || Math.abs(pageScale - minPageScale) < Number.EPSILON;
 			},
-			// compute zoom in button disabled
 			_zoomInButtonDisabled: function(pageScale, maxPageScale) {
 				return pageScale >= maxPageScale || Math.abs(pageScale - maxPageScale) < Number.EPSILON;
 			},
-			// --events--
-			// click zoom in
-			_onTapZoomIn: function(e) {
-				this.dispatchEvent(
-					new CustomEvent('d2l-pdf-viewer-toolbar-zoom-in')
-				);
+			_fullscreenButtonDisabled: function() {
+
 			},
-			// click zoom out
-			_onTapZoomOut: function(e) {
+			_onToolbarButtonActivation: function(e) {
+				e.stopPropagation();
+
 				this.dispatchEvent(
-					new CustomEvent('d2l-pdf-viewer-toolbar-zoom-out')
+					new CustomEvent('d2l-pdf-viewer-toolbar-' + e.detail.action)
 				);
-			},
-			_onTapFullscreen: function(e) {
-				this.dispatchEvent(
-					new CustomEvent('d2l-pdf-viewer-toggle-fullscreen')
-				);
-			},
-			_onButtonMouseDown: function(e) {
-				e.preventDefault();
 			},
 			_getFullscreenIcon: function(isFullscreen) {
 				return isFullscreen

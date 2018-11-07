@@ -73,7 +73,8 @@
 		<div class="outer-container">
 			<div class="toolbar-container">
 				<div class="info-container">
-					<span id="pageNumber"
+					<span
+						id="pageNumber"
 						class="toolbar-label"
 						aria-label$="[[localize('pageLabel')]]">
 						[[localize('pageOfPages', 'pageNumber', pageNumber, 'pagesCount', pagesCount)]]
@@ -81,6 +82,7 @@
 				</div>
 				<div class="control-container">
 					<d2l-pdf-viewer-toolbar-button
+						id="zoomOutButton"
 						disabled="[[_zoomOutButtonDisabled(pageScale, minPageScale)]]"
 						action="zoom-out"
 						aria-label$="[[localize('zoomOutLabel')]]"
@@ -88,6 +90,7 @@
 						<d2l-icon icon="d2l-tier1:zoom-out"></d2l-icon>
 					</d2l-pdf-viewer-toolbar-button>
 					<d2l-pdf-viewer-toolbar-button
+						id="zoomInButton"
 						disabled="[[_zoomInButtonDisabled(pageScale, maxPageScale)]]"
 						action="zoom-in"
 						aria-label$="[[localize('zoomInLabel')]]"
@@ -95,6 +98,7 @@
 						<d2l-icon icon="d2l-tier1:zoom-in"></d2l-icon>
 					</d2l-pdf-viewer-toolbar-button>
 					<d2l-pdf-viewer-toolbar-button
+						id="fullscreenButton"
 						disabled="[[!fullscreenAvailable]]"
 						action="toggle-fullscreen">
 						<d2l-icon icon="[[_getFullscreenIcon(isFullscreen)]]"></d2l-icon>

@@ -96,6 +96,7 @@
 
 				this.dispatchEvent(new CustomEvent('d2l-pdf-toolbar-button-activation', {
 					bubbles: true,
+					composed: true,
 					detail: {
 						action: this.action
 					}

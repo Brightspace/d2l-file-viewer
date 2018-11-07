@@ -102,32 +102,6 @@
 							done();
 						});
 					});
-
-					it('should not display page label if hasPageLabels is false', function(done) {
-						toolbar.pageLabel = 'test';
-						setTimeout(function() {
-							expect(toolbar.$.pageNumber.value.includes('test')).to.be.false;
-							done();
-						});
-					});
-
-					it.skip('should display page label & change "out of" text if hasPageLabels is true', function(done) {
-						toolbar.hasPageLabels = true;
-						toolbar.pageLabel = 'test';
-						setTimeout(function() {
-							expect(toolbar.$.pageNumber.value.includes('test')).to.be.true;
-							expect(toolbar.$.numPages.textContent.trim()).to.equal('4 of 10');
-							done();
-						});
-					});
-
-					it('should not display page label if hasPageLabels is false', function(done) {
-						toolbar.hasPageLabels = true;
-						setTimeout(function() {
-							expect(toolbar.$.pageNumber.type).to.equal('text');
-							done();
-						});
-					});
 				});
 			});
 		</script>

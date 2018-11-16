@@ -161,14 +161,14 @@
 				pdfjsLib.getDocument({
 					url: this.src
 				}).then(pdfDocument => {
-					let title = '';
+					let pdfName = '';
 					const parts = this.src.split('/');
 
 					if (parts.length > 0) {
-						title = parts[parts.length - 1];
+						pdfName = parts[parts.length - 1];
 					}
 
-					this._pdfName = title;
+					this._pdfName = pdfName;
 					this._pdfViewer.setDocument(pdfDocument);
 					this._pagesCount = pdfDocument.numPages;
 					this._pageNumber = this._pdfViewer.currentPageNumber;
@@ -223,13 +223,11 @@
 				this.$.loadingBar.start();
 			},
 			_onPagesInitEvent: function() {
-				if (this._pdfViewer) {
-					this._pdfViewer.currentScaleValue = 'page-width';
-					this._pageScale = this._pdfViewer.currentScale;
-					this.$.loadingBar.finish();
-					this._onInteraction();
-					this._isLoaded = true;
-				}
+				this._pdfViewer.currentScaleValue = 'page-width';
+				this._pageScale = this._pdfViewer.currentScale;
+				this.$.loadingBar.finish();
+				this._onInteraction();
+				this._isLoaded = true;
 			},
 			_onPageChangeEvent: function(evt) {
 				this._pageNumber = evt.pageNumber;
@@ -295,9 +293,9 @@
 				// This could also happen when switching away from the tab/window, but on re-entry
 				// this element get another mouseleave/etc. event if the mouse is outside of the element
 				if (e.relatedTarget || e.toElement) {
-					this.removeEventListener('mousemove', this._onMouseMove);
-
 					clearTimeout(this._recentInteractionTimer);
+
+					this.removeEventListener('mousemove', this._onMouseMove);
 					this._hasRecentInteraction = false;
 				}
 			},

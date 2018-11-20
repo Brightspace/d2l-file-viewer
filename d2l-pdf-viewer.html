@@ -64,19 +64,18 @@
 		<div id="viewerContainer">
 			<div id="viewer" class="pdfViewer"></div>
 		</div>
-		<div role="heading" aria-describedby="pdfName">
-			<d2l-pdf-viewer-toolbar
-				id="toolbar"
-				page-number="[[_pageNumber]]"
-				pages-count="[[_pagesCount]]"
-				page-scale="[[_pageScale]]"
-				min-page-scale="[[minPageScale]]"
-				max-page-scale="[[maxPageScale]]"
-				fullscreen-available="[[_isFullscreenAvailable]]"
-				is-fullscreen="[[_isFullscreen]]"
-				show$="[[_showToolbar]]">
-			</d2l-pdf-viewer-toolbar>
-		</div>
+		<d2l-pdf-viewer-toolbar
+			id="toolbar"
+			page-number="[[_pageNumber]]"
+			pages-count="[[_pagesCount]]"
+			page-scale="[[_pageScale]]"
+			min-page-scale="[[minPageScale]]"
+			max-page-scale="[[maxPageScale]]"
+			fullscreen-available="[[_isFullscreenAvailable]]"
+			is-fullscreen="[[_isFullscreen]]"
+			show$="[[_showToolbar]]"
+			aria-labelledby="pdfName">
+		</d2l-pdf-viewer-toolbar>
 	</template>
 	<script>
 		/* global pdfjsViewer, pdfjsLib */
@@ -90,6 +89,9 @@
 		 */
 		Polymer({
 			is: 'd2l-pdf-viewer',
+			hostAttributes: {
+				'aria-describedby': 'pdfName'
+			},
 			properties: {
 				minPageScale: {
 					type: Number,

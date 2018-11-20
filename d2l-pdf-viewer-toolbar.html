@@ -1,6 +1,8 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../d2l-colors/d2l-colors.html">
+<link rel="import" href="../d2l-button/d2l-button-behavior.html">
 <link rel="import" href="../d2l-icons/d2l-icon.html">
+<link rel="import" href="../d2l-polymer-behaviors/d2l-dom.html">
+<link rel="import" href="../d2l-polymer-behaviors/d2l-focusable-arrowkeys-behavior.html">
 <link rel="import" href="../d2l-typography/d2l-typography-shared-styles.html">
 <link rel="import" href="./d2l-pdf-viewer-toolbar-button.html">
 <link rel="import" href="./localize-behavior.html">
@@ -68,7 +70,6 @@
 				margin: 6px;
 			}
 		</style>
-		<span hidden id="pdfName">[[pdfName]]</span>
 		<div class="outer-container">
 			<div class="toolbar-container">
 				<div class="info-container">
@@ -81,29 +82,31 @@
 				</div>
 				<div class="control-container" role="group">
 					<d2l-pdf-viewer-toolbar-button
+						active
 						id="zoomOutButton"
-						action="zoom-out"
-						aria-label="[[localize('zoomOutLabel')]]"
 						title="[[localize('zoomOutTitle')]]"
-						disabled="[[_zoomOutButtonDisabled(pageScale, minPageScale)]]"
-						icon="d2l-tier1:zoom-out">
+						icon="d2l-tier1:zoom-out"
+						on-tap="_onZoomOutButtonTapped"
+						aria-label="[[localize('zoomOutLabel')]]"
+						aria-disabled="[[_zoomOutButtonDisabled(pageScale, minPageScale)]]">
 					</d2l-pdf-viewer-toolbar-button>
 					<d2l-pdf-viewer-toolbar-button
 						id="zoomInButton"
-						action="zoom-in"
-						aria-label="[[localize('zoomInLabel')]]"
+						on-tap="_onZoomInButtonTapped"
 						title="[[localize('zoomInTitle')]]"
-						disabled="[[_zoomInButtonDisabled(pageScale, maxPageScale)]]"
-						icon="d2l-tier1:zoom-in">
+						icon="d2l-tier1:zoom-in"
+						aria-label="[[localize('zoomInLabel')]]"
+						aria-disabled="[[_zoomInButtonDisabled(pageScale, maxPageScale)]]">
 					</d2l-pdf-viewer-toolbar-button>
 					<d2l-pdf-viewer-toolbar-button
+						toggle
 						id="fullscreenButton"
-						action="toggle-fullscreen"
-						aria-label="[[localize('presentationModeLabel')]]"
-						aria-pressed="[[isFullscreen]]"
+						on-tap="_onToggleFullscreenButtonTapped"
 						title="[[localize('presentationModeTitle')]]"
-						disabled="[[!fullscreenAvailable]]"
-						icon="[[_getFullscreenIcon(isFullscreen)]]">
+						icon="[[_getFullscreenIcon(isFullscreen)]]"
+						aria-label="[[localize('presentationModeLabel')]]"
+						pressed="[[isFullscreen]]"
+						disabled="[[!fullscreenAvailable]]">
 					</d2l-pdf-viewer-toolbar-button>
 				</div>
 			</div>
@@ -112,6 +115,13 @@
 	<script>
 		Polymer({
 			is: 'd2l-pdf-viewer-toolbar',
+			hostAttributes: {
+				role: 'toolbar'
+			},
+			listeners: {
+				'focusin': '_onFocusIn',
+				'focusout': '_onFocusOut'
+			},
 			properties: {
 				fullscreenAvailable: {
 					type: Boolean,
@@ -146,13 +156,16 @@
 				}
 			},
 
-			listeners: {
-				'd2l-pdf-toolbar-button-activation': '_onToolbarButtonActivation'
-			},
-
 			behaviors: [
-				window.D2L.PolymerBehaviors.FileViewer.LocalizeBehavior
+				window.D2L.PolymerBehaviors.FileViewer.LocalizeBehavior,
+				window.D2L.PolymerBehaviors.FocusableArrowKeysBehavior
 			],
+
+			attached: function() {
+				Polymer.RenderStatus.afterNextRender(this, function() {
+					this._initFocusablesBehavior();
+				}.bind(this));
+			},
 
 			_getEventTarget: function() {
 				return this;
@@ -163,17 +176,71 @@
 			_zoomInButtonDisabled: function(pageScale, maxPageScale) {
 				return pageScale >= maxPageScale || Math.abs(pageScale - maxPageScale) < Number.EPSILON;
 			},
-			_onToolbarButtonActivation: function(e) {
-				e.stopPropagation();
-
+			_onZoomOutButtonTapped: function() {
 				this.dispatchEvent(
-					new CustomEvent('d2l-pdf-viewer-toolbar-' + e.detail.action)
+					new CustomEvent('d2l-pdf-viewer-toolbar-zoom-out')
+				);
+			},
+			_onZoomInButtonTapped: function() {
+				this.dispatchEvent(
+					new CustomEvent('d2l-pdf-viewer-toolbar-zoom-in')
+				);
+			},
+			_onToggleFullscreenButtonTapped: function() {
+				this.dispatchEvent(
+					new CustomEvent('d2l-pdf-viewer-toolbar-toggle-fullscreen')
 				);
 			},
 			_getFullscreenIcon: function(isFullscreen) {
 				return isFullscreen
 					? 'd2l-tier1:smallscreen'
 					: 'd2l-tier1:fullscreen';
+			},
+			_initFocusablesBehavior: function() {
+				const toolbarControls = this.getElementsByTagName('d2l-pdf-viewer-toolbar-button');
+				const toolbarButtons = Array.prototype.slice.call(toolbarControls)
+					.map(function(item) {
+						return item.getElementsByTagName('button')[0];
+					});
+
+				// required container element of focusables (used to listen for key events)
+				this.arrowKeyFocusablesContainer = this.$$('.control-container');
+
+				// required provider method that can return list of focusables - possible async
+				this.arrowKeyFocusablesProvider = function() {
+					return Promise.resolve(toolbarButtons);
+				};
+			},
+			_onFocusIn: function(e) {
+				if (!e.target) {
+					return;
+				}
+
+				var targetParent = e.target.parentElement;
+
+				if (targetParent.tagName.toLowerCase() === 'd2l-pdf-viewer-toolbar-button') {
+					e.target.tabIndex = 0;
+				}
+			},
+			_onFocusOut: function(e) {
+				/* Make not-tabbable if we know we're moving to another button */
+				if (!e.target || !e.relatedTarget) {
+					return;
+				}
+
+				var targetParent = e.target.parentElement;
+
+				if (targetParent.tagName.toLowerCase() === 'd2l-pdf-viewer-toolbar-button') {
+					var parent = e.relatedTarget.parentElement;
+
+					if (!e.relatedTarget.tagName.toLowerCase() === 'd2l-pdf-viewer-toolbar-button') {
+						return;
+					}
+
+					if (D2L.Dom.isComposedAncestor(this, parent)) {
+						e.target.tabIndex = -1;
+					}
+				}
 			}
 		});
 	</script>

@@ -1,7 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../d2l-colors/d2l-colors.html">
 <link rel="import" href="../d2l-icons/d2l-icon.html">
-<link rel="import" href="../d2l-typography/d2l-typography-shared-styles.html">
 <link rel="import" href="localize-behavior.html">
 
 <dom-module id="d2l-pdf-viewer-toolbar-button">
@@ -18,14 +17,20 @@
 				padding: 0;
 			}
 
-			button[disabled] {
+			button[aria-disabled="true"],
+			button:disabled {
 				cursor: default;
 				opacity: .5;
 			}
 
-			button:hover:not([disabled]),
-			button:focus:not([disabled]) {
+			button:focus,
+			button:hover:not([aria-disabled="true"]):not(:disabled) {
 				background-color: var(--d2l-color-celestine-minus-1);
+			}
+
+			/* Firefox includes a hidden border which messes up button dimensions */
+			button::-moz-focus-inner {
+				border: 0;
 			}
 
 			d2l-icon {
@@ -34,51 +39,68 @@
 			}
 		</style>
 		<button
+			aria-disabled$="[[_getAriaDisabled(ariaDisabled)]]"
 			aria-label$="[[ariaLabel]]"
-			aria-pressed$="[[ariaPressed]]"
+			aria-pressed$="[[_getAriaPressed(toggle, pressed)]]"
 			disabled$="[[disabled]]"
 			title$=[[title]]>
-			<d2l-icon icon=[[icon]]></d2l-icon>
+			<d2l-icon icon="[[icon]]"></d2l-icon>
 		</button>
 	</template>
 	<script>
 		Polymer({
 			is: 'd2l-pdf-viewer-toolbar-button',
-			listeners: {
-				'tap': '_sendActivationEvent'
-			},
+
 			properties: {
-				action: {
-					type: String
-				},
-				ariaPressed: {
+				ariaDisabled: {
 					type: Boolean,
 					value: false
 				},
-				disabled: {
-					type: Boolean,
-					value: true,
-					reflectToAttribute: true
-				},
 				ariaLabel: {
 					type: String
+				},
+				disabled: {
+					type: Boolean,
+					value: false
+				},
+				icon: {
+					type: String
+				},
+				toggle: {
+					type: Boolean,
+					value: false
+				},
+				pressed: {
+					type: Boolean,
+					value: false
+				},
+				active: {
+					type: Boolean,
+					value: false
 				},
 				title: {
 					type: String
 				}
 			},
-			_sendActivationEvent: function() {
-				if (this.disabled) {
-					return;
+
+			behaviors: [
+				D2L.PolymerBehaviors.Button.Behavior
+			],
+
+			ready: function() {
+				this.$$('button').tabIndex = this.active ? 0 : -1;
+			},
+
+			_getAriaDisabled: function(ariaDisabled) {
+				return ariaDisabled ? 'true' : undefined;
+			},
+
+			_getAriaPressed: function(toggle, pressed) {
+				if (!toggle) {
+					return false; // Don't apply attribute at all - not toggle button
 				}
 
-				this.dispatchEvent(new CustomEvent('d2l-pdf-toolbar-button-activation', {
-					bubbles: true,
-					composed: true,
-					detail: {
-						action: this.action
-					}
-				}));
+				return pressed ? 'true' : 'false'; // Indicate state of toggle button
 			}
 		});
 	</script>

@@ -100,7 +100,9 @@
 					'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf.worker.min.js';
 
 				// (Optionally) enable hyperlinks within PDF files.
-				var pdfLinkService = new pdfjsViewer.PDFLinkService();
+				var pdfLinkService = new pdfjsViewer.PDFLinkService({
+					externalLinkTarget: pdfjsLib.LinkTarget.BLANK
+				});
 
 				this._pdfViewer = new pdfjsViewer.PDFViewer({
 					container: this.$.viewerContainer,

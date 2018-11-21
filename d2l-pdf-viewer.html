@@ -141,7 +141,8 @@
 				'touchstart': '_onInteraction',
 				'touchend': '_onInteraction',
 				'touchmove': '_onInteraction',
-				'focusin': '_onInteraction'
+				'focusin': '_onInteraction',
+				'focusout': '_onFocusOut'
 			},
 			ready: function() {
 				pdfjsLib.GlobalWorkerOptions.workerSrc =
@@ -312,6 +313,11 @@
 				this._recentInteractionTimer = setTimeout(() => {
 					this._hasRecentInteraction = false;
 				}, 2000);
+			},
+			_onFocusOut: function(e) {
+				if (!D2L.Dom.isComposedAncestor(this, e.relatedTarget)) {
+					this._hasRecentInteraction = false;
+				}
 			},
 			_computeShowToolbar: function(isLoaded, hasRecentInteraction) {
 				return !!isLoaded && !!hasRecentInteraction;

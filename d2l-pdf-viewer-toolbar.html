@@ -161,9 +161,9 @@
 			],
 
 			attached: function() {
-				Polymer.RenderStatus.afterNextRender(this, function() {
-					this._initFocusablesBehavior();
-				}.bind(this));
+				Polymer.RenderStatus.afterNextRender(this, () => {
+					this._initRovingTabIndex();
+				});
 			},
 
 			_getEventTarget: function() {
@@ -195,7 +195,7 @@
 					? 'd2l-tier1:smallscreen'
 					: 'd2l-tier1:fullscreen';
 			},
-			_initFocusablesBehavior: function() {
+			_initRovingTabIndex: function() {
 				const toolbarControls = this.getElementsByTagName('d2l-pdf-viewer-toolbar-button');
 				const toolbarButtons = Array.prototype.slice.call(toolbarControls)
 					.map(function(item) {

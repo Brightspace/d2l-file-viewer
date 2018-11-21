@@ -83,7 +83,7 @@
 					it('should disable the "fullscreen" button when fullscreenAvailable is false', function(done) {
 						toolbar.fullscreenAvailable = false;
 						setTimeout(function() {
-							expect(toolbar.$.fullscreenButton.hasAttribute('disabled')).to.be.true;
+							expect(toolbar.$.fullscreenButton.disabled).to.be.true;
 							done();
 						});
 					});

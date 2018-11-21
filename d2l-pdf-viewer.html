@@ -32,6 +32,7 @@
 				bottom: 18px;
 				transition-property: opacity;
 				transition-duration: 500ms;
+				z-index: 1;
 			}
 
 			d2l-pdf-viewer-toolbar[show] {
@@ -59,9 +60,6 @@
 		</fullscreen-api>
 
 		<d2l-page-load-progress id="loadingBar" color="#006fbf" autohide></d2l-page-load-progress>
-		<div id="viewerContainer">
-			<div id="viewer" class="pdfViewer"></div>
-		</div>
 		<d2l-pdf-viewer-toolbar
 			id="toolbar"
 			page-number="[[_pageNumber]]"
@@ -71,9 +69,11 @@
 			max-page-scale="[[maxPageScale]]"
 			fullscreen-available="[[_isFullscreenAvailable]]"
 			is-fullscreen="[[_isFullscreen]]"
-			show$="[[_showToolbar]]"
-			aria-labelledby="pdfName">
+			show$="[[_showToolbar]]">
 		</d2l-pdf-viewer-toolbar>
+		<div id="viewerContainer">
+			<article id="viewer" class="pdfViewer" tabindex="0"></article>
+		</div>
 	</template>
 	<script>
 		/* global pdfjsViewer, pdfjsLib */
@@ -87,6 +87,10 @@
 		 */
 		Polymer({
 			is: 'd2l-pdf-viewer',
+			hostAttributes: {
+				'role': 'document',
+				'aria-describedby': 'pdfName'
+			},
 			properties: {
 				minPageScale: {
 					type: Number,

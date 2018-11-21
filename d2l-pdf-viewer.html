@@ -30,18 +30,16 @@
 			d2l-pdf-viewer-toolbar {
 				position: absolute;
 				bottom: 18px;
+				transition-property: opacity;
+				transition-duration: 500ms;
 			}
 
 			d2l-pdf-viewer-toolbar[show] {
-				transition-property: all;
-				transition-duration: 500ms;
 				opacity: 1;
 				pointer-events: auto;
 			}
 
 			d2l-pdf-viewer-toolbar:not([show]) {
-				transition-property: all;
-				transition-duration: 500ms;
 				opacity: 0;
 				pointer-events: none;
 			}
@@ -184,22 +182,40 @@
 			},
 			detached: function() {
 				window.removeEventListener('resize', this._resize);
+
+				this.$.viewerContainer.removeEventListener('pagesinit', this._onPagesInitEvent);
+				this.$.viewerContainer.removeEventListener('pagechange', this._onPageChangeEvent);
+
+				this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-previous', this._onPrevPageEvent);
+				this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-next', this._onNextPageEvent);
+				this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-zoom-in', this._onZoomInEvent);
+				this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-zoom-out', this._onZoomOutEvent);
+				this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-page-change', this._onPageNumberChangedEvent);
+				this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', this._onFullscreenEvent);
 			},
 			_addEventListeners: function() {
 				this._onMouseEnter = this._onMouseEnter.bind(this); // don't add yet- just bind
 				this._resize = this._resize.bind(this);
+				this._onPagesInitEvent = this._onPagesInitEvent.bind(this);
+				this._onPageChangeEvent = this._onPageChangeEvent.bind(this);
+				this._onPrevPageEvent = this._onPrevPageEvent.bind(this);
+				this._onNextPageEvent = this._onNextPageEvent.bind(this);
+				this._onZoomInEvent = this._onZoomInEvent.bind(this);
+				this._onZoomOutEvent = this._onZoomOutEvent.bind(this);
+				this._onPageNumberChangedEvent = this._onPageNumberChangedEvent.bind(this);
+				this._onFullscreenEvent = this._onFullscreenEvent.bind(this);
 
 				window.addEventListener('resize', this._resize);
 
-				this.$.viewerContainer.addEventListener('pagesinit', this._onPagesInitEvent.bind(this));
-				this.$.viewerContainer.addEventListener('pagechange', this._onPageChangeEvent.bind(this));
+				this.$.viewerContainer.addEventListener('pagesinit', this._onPagesInitEvent);
+				this.$.viewerContainer.addEventListener('pagechange', this._onPageChangeEvent);
 
-				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-previous', this._onPrevPageEvent.bind(this));
-				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-next', this._onNextPageEvent.bind(this));
-				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-in', this._onZoomInEvent.bind(this));
-				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-out', this._onZoomOutEvent.bind(this));
-				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-page-change', this._onPageNumberChangedEvent.bind(this));
-				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', this._onFullscreenEvent.bind(this));
+				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-previous', this._onPrevPageEvent);
+				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-next', this._onNextPageEvent);
+				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-in', this._onZoomInEvent);
+				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-out', this._onZoomOutEvent);
+				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-page-change', this._onPageNumberChangedEvent);
+				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', this._onFullscreenEvent);
 			},
 			_resize: function() {
 				if (!this._resizeThrottleHandle) {

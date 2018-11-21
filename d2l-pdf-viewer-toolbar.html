@@ -202,15 +202,10 @@
 						return control.getElementsByTagName('button')[0];
 					});
 
-				// required container element of focusables (used to listen for key events)
 				this.arrowKeyFocusablesContainer = this.$$('.control-container');
 
-				// required provider method that can return list of focusables - possible async
-				this.arrowKeyFocusablesProvider = function() {
-					const activeButtons =
-						toolbarButtons.filter(button => {
-							return !button.hasAttribute('disabled');
-						});
+				this.arrowKeyFocusablesProvider = () => {
+					const activeButtons = toolbarButtons.filter(button => !button.disabled);
 
 					return Promise.resolve(activeButtons);
 				};

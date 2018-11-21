@@ -198,8 +198,8 @@
 			_initRovingTabIndex: function() {
 				const toolbarControls = this.getElementsByTagName('d2l-pdf-viewer-toolbar-button');
 				const toolbarButtons = Array.prototype.slice.call(toolbarControls)
-					.map(function(item) {
-						return item.getElementsByTagName('button')[0];
+					.map(control => {
+						return control.getElementsByTagName('button')[0];
 					});
 
 				// required container element of focusables (used to listen for key events)
@@ -207,7 +207,12 @@
 
 				// required provider method that can return list of focusables - possible async
 				this.arrowKeyFocusablesProvider = function() {
-					return Promise.resolve(toolbarButtons);
+					const activeButtons =
+						toolbarButtons.filter(button => {
+							return !button.hasAttribute('disabled');
+						});
+
+					return Promise.resolve(activeButtons);
 				};
 			},
 			_onFocusIn: function(e) {

@@ -58,9 +58,12 @@
 					});
 
 					it('should render all elements correctly', function() {
-						expect(toolbar.$.zoomOutButton.hasAttribute('disabled')).to.be.false;
-						expect(toolbar.$.zoomInButton.hasAttribute('disabled')).to.be.false;
-						expect(toolbar.$.fullscreenButton.hasAttribute('disabled')).to.be.false;
+						for (const disabledType of ['disabled', 'ariaDisabled']) {
+							expect(toolbar.$.zoomOutButton[disabledType]).to.be.false;
+							expect(toolbar.$.zoomInButton[disabledType]).to.be.false;
+							expect(toolbar.$.fullscreenButton[disabledType]).to.be.false;
+						}
+
 						expect(toolbar.$.pageNumber.textContent.trim()).to.equal('Page 4 / 10');
 					});
 

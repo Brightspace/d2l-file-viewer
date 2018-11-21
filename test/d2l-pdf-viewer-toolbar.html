@@ -67,7 +67,7 @@
 					it('should disable the "zoom in" button when pageScale >= maxPageScale', function(done) {
 						toolbar.pageScale = toolbar.maxPageScale;
 						setTimeout(function() {
-							expect(toolbar.$.zoomInButton.hasAttribute('disabled')).to.be.true;
+							expect(toolbar.$.zoomInButton.ariaDisabled).to.be.true;
 							done();
 						});
 					});
@@ -75,7 +75,7 @@
 					it('should disable the "zoom out" button when pageScale <= minPageScale', function(done) {
 						toolbar.pageScale = toolbar.minPageScale;
 						setTimeout(function() {
-							expect(toolbar.$.zoomOutButton.hasAttribute('disabled')).to.be.true;
+							expect(toolbar.$.zoomOutButton.ariaDisabled).to.be.true;
 							done();
 						});
 					});

@@ -1,0 +1,103 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../d2l-colors/d2l-colors.html">
+<link rel="import" href="../d2l-icons/d2l-icon.html">
+<link rel="import" href="localize-behavior.html">
+
+<dom-module id="d2l-pdf-viewer-toolbar-button">
+	<template strip-whitespace>
+		<style>
+			button {
+				cursor: pointer;
+				border: none;
+				border-radius: 6px;
+				outline: none;
+				user-select: none;
+				transition: background-color 0.5s;
+				background-color: transparent;
+				padding: 0;
+			}
+
+			button[aria-disabled="true"],
+			button:disabled {
+				cursor: default;
+				opacity: .5;
+			}
+
+			button:focus,
+			button:hover:not([aria-disabled="true"]):not(:disabled) {
+				background-color: var(--d2l-color-celestine);
+			}
+
+			/* Firefox includes a hidden border which messes up button dimensions */
+			button::-moz-focus-inner {
+				border: 0;
+			}
+
+			d2l-icon {
+				color: white;
+				padding: 6px;
+			}
+		</style>
+		<button
+			aria-disabled$="[[_getAriaDisabled(ariaDisabled)]]"
+			aria-label$="[[ariaLabel]]"
+			aria-pressed$="[[_getAriaPressed(toggle, pressed)]]"
+			disabled$="[[disabled]]"
+			title$=[[title]]>
+			<d2l-icon icon="[[icon]]"></d2l-icon>
+		</button>
+	</template>
+	<script>
+		Polymer({
+			is: 'd2l-pdf-viewer-toolbar-button',
+
+			properties: {
+				ariaDisabled: {
+					type: Boolean,
+					value: false
+				},
+				ariaLabel: {
+					type: String
+				},
+				disabled: {
+					type: Boolean,
+					value: false
+				},
+				icon: {
+					type: String
+				},
+				toggle: {
+					type: Boolean,
+					value: false
+				},
+				pressed: {
+					type: Boolean,
+					value: false
+				},
+				active: {
+					type: Boolean,
+					value: false
+				},
+				title: {
+					type: String
+				}
+			},
+
+			ready: function() {
+				this.$$('button').tabIndex = this.active ? 0 : -1;
+			},
+
+			_getAriaDisabled: function(ariaDisabled) {
+				return ariaDisabled ? 'true' : undefined;
+			},
+
+			_getAriaPressed: function(toggle, pressed) {
+				if (!toggle) {
+					return false; // Don't apply attribute at all - not toggle button
+				}
+
+				return pressed ? 'true' : 'false'; // Indicate state of toggle button
+			}
+		});
+	</script>
+</dom-module>

@@ -1,8 +1,9 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../d2l-page-load-progress/d2l-page-load-progress.html">
+<link rel="import" href="../fullscreen-api/fullscreen-api.html">
 <link rel="import" href="d2l-pdf-viewer-toolbar.html">
 
-<!-- @note: aware that external stylesheets are very deprecated -->
+<!-- @note: aware that external stylesheets are very deprecated and NOT supported in Polymer 2+ -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf_viewer.css">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf.min.js"></script>
@@ -23,34 +24,56 @@
 				position: relative;
 				overflow: auto;
 				width: 100%;
-				height: calc(100% - 49px);
+				height: 100%;
 			}
 
 			d2l-pdf-viewer-toolbar {
-				position: relative;
-				left: 0;
-				right: 0;
-				cursor: default;
+				position: absolute;
+				bottom: 18px;
+				transition-property: opacity;
+				transition-duration: 500ms;
+				z-index: 1;
 			}
 
-			d2l-page-load-progress[hidden] {
+			d2l-pdf-viewer-toolbar[show] {
+				opacity: 1;
+				pointer-events: auto;
+			}
+
+			d2l-pdf-viewer-toolbar:not([show]) {
+				opacity: 0;
+				pointer-events: none;
+			}
+
+			[hidden] {
 				display: none !important;
 			}
 		</style>
-		<d2l-page-load-progress id="loadingBar" autohide></d2l-page-load-progress>
-		<div id="viewerContainer">
-			<div id="viewer" class="pdfViewer"></div>
-		</div>
+
+		<span id="pdfName" hidden>[[_pdfName]]</span>
+
+		<fullscreen-api
+			id="fsApi"
+			target="[[_getFullscreenTarget()]]"
+			fullscreen="{{_isFullscreen}}"
+			fullscreen-available="{{_isFullscreenAvailable}}">
+		</fullscreen-api>
+
+		<d2l-page-load-progress id="loadingBar" color="#006fbf" autohide></d2l-page-load-progress>
 		<d2l-pdf-viewer-toolbar
 			id="toolbar"
-			page-label="[[_pageLabel]]"
 			page-number="[[_pageNumber]]"
 			pages-count="[[_pagesCount]]"
-			has-page-labels="[[_hasPageLabels]]"
 			page-scale="[[_pageScale]]"
-			min-page-scale="[[_minPageScale]]"
-			max-page-scale="[[_maxPageScale]]">
+			min-page-scale="[[minPageScale]]"
+			max-page-scale="[[maxPageScale]]"
+			fullscreen-available="[[_isFullscreenAvailable]]"
+			is-fullscreen="[[_isFullscreen]]"
+			show$="[[_showToolbar]]">
 		</d2l-pdf-viewer-toolbar>
+		<div id="viewerContainer">
+			<div id="viewer" class="pdfViewer" tabindex="0"></div>
+		</div>
 	</template>
 	<script>
 		/* global pdfjsViewer, pdfjsLib */
@@ -64,14 +87,38 @@
 		 */
 		Polymer({
 			is: 'd2l-pdf-viewer',
+			hostAttributes: {
+				'role': 'document',
+				'aria-describedby': 'pdfName'
+			},
 			properties: {
+				minPageScale: {
+					type: Number,
+					value: 0.1
+				},
+				maxPageScale: {
+					type: Number,
+					value: 5
+				},
 				src: {
 					type: String,
 					observer: '_srcChanged'
 				},
-				_pageLabel: {
-					type: String,
-					value: null
+				_isFullscreen: {
+					type: Boolean,
+					value: false
+				},
+				_isFullscreenAvailable: {
+					type: Boolean,
+					value: false
+				},
+				_isLoaded: {
+					type: Boolean,
+					value: false
+				},
+				_hasRecentInteraction: {
+					type: Boolean,
+					value: false
 				},
 				_pageNumber: {
 					type: Number
@@ -79,21 +126,22 @@
 				_pagesCount: {
 					type: Number
 				},
-				_hasPageLabels: {
-					type: Boolean,
-					value: false
-				},
 				_pageScale: {
 					type: Number
 				},
-				_minPageScale: {
-					type: Number,
-					value: 0.1
-				},
-				_maxPageScale: {
-					type: Number,
-					value: 2
+				_showToolbar: {
+					type: Boolean,
+					computed: '_computeShowToolbar(_isLoaded, _hasRecentInteraction)'
 				}
+			},
+			listeners: {
+				'mouseenter': '_onMouseEnter',
+				'mouseleave': '_onMouseLeave',
+				'touchstart': '_onInteraction',
+				'touchend': '_onInteraction',
+				'touchmove': '_onInteraction',
+				'focusin': '_onInteraction',
+				'focusout': '_onFocusOut'
 			},
 			ready: function() {
 				pdfjsLib.GlobalWorkerOptions.workerSrc =
@@ -117,6 +165,14 @@
 				pdfjsLib.getDocument({
 					url: this.src
 				}).then(pdfDocument => {
+					let pdfName = '';
+					const parts = this.src.split('/');
+
+					if (parts.length > 0) {
+						pdfName = parts[parts.length - 1];
+					}
+
+					this._pdfName = pdfName;
 					this._pdfViewer.setDocument(pdfDocument);
 					this._pagesCount = pdfDocument.numPages;
 					this._pageNumber = this._pdfViewer.currentPageNumber;
@@ -132,20 +188,40 @@
 			},
 			detached: function() {
 				window.removeEventListener('resize', this._resize);
+
+				this.$.viewerContainer.removeEventListener('pagesinit', this._onPagesInitEvent);
+				this.$.viewerContainer.removeEventListener('pagechange', this._onPageChangeEvent);
+
+				this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-previous', this._onPrevPageEvent);
+				this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-next', this._onNextPageEvent);
+				this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-zoom-in', this._onZoomInEvent);
+				this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-zoom-out', this._onZoomOutEvent);
+				this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-page-change', this._onPageNumberChangedEvent);
+				this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', this._onFullscreenEvent);
 			},
 			_addEventListeners: function() {
+				this._onMouseEnter = this._onMouseEnter.bind(this); // don't add yet- just bind
 				this._resize = this._resize.bind(this);
+				this._onPagesInitEvent = this._onPagesInitEvent.bind(this);
+				this._onPageChangeEvent = this._onPageChangeEvent.bind(this);
+				this._onPrevPageEvent = this._onPrevPageEvent.bind(this);
+				this._onNextPageEvent = this._onNextPageEvent.bind(this);
+				this._onZoomInEvent = this._onZoomInEvent.bind(this);
+				this._onZoomOutEvent = this._onZoomOutEvent.bind(this);
+				this._onPageNumberChangedEvent = this._onPageNumberChangedEvent.bind(this);
+				this._onFullscreenEvent = this._onFullscreenEvent.bind(this);
 
 				window.addEventListener('resize', this._resize);
 
-				this.$.viewerContainer.addEventListener('pagesinit', this._onPagesInitEvent.bind(this));
-				this.$.viewerContainer.addEventListener('pagechange', this._onPageChangeEvent.bind(this));
+				this.$.viewerContainer.addEventListener('pagesinit', this._onPagesInitEvent);
+				this.$.viewerContainer.addEventListener('pagechange', this._onPageChangeEvent);
 
-				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-previous', this._onPrevPageEvent.bind(this));
-				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-next', this._onNextPageEvent.bind(this));
-				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-in', this._onZoomInEvent.bind(this));
-				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-out', this._onZoomOutEvent.bind(this));
-				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-page-change', this._onPageNumberChangedEvent.bind(this));
+				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-previous', this._onPrevPageEvent);
+				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-next', this._onNextPageEvent);
+				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-in', this._onZoomInEvent);
+				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-out', this._onZoomOutEvent);
+				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-page-change', this._onPageNumberChangedEvent);
+				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', this._onFullscreenEvent);
 			},
 			_resize: function() {
 				if (!this._resizeThrottleHandle) {
@@ -172,6 +248,8 @@
 				this._pdfViewer.currentScaleValue = 'page-width';
 				this._pageScale = this._pdfViewer.currentScale;
 				this.$.loadingBar.finish();
+				this._onInteraction();
+				this._isLoaded = true;
 			},
 			_onPageChangeEvent: function(evt) {
 				this._pageNumber = evt.pageNumber;
@@ -184,9 +262,20 @@
 			},
 			_onZoomInEvent: function() {
 				this._addDeltaZoom(0.1);
+				this._onInteraction();
 			},
 			_onZoomOutEvent: function() {
 				this._addDeltaZoom(-0.1);
+				this._onInteraction();
+			},
+			_onFullscreenEvent: function() {
+				this.$.fsApi.toggleFullscreen();
+				this._onInteraction();
+
+				// If scale is a special type (eg. 'page-width'), ensure we maintain that
+				requestAnimationFrame(() => {
+					this._pageScale = this._pdfViewer.currentScale;
+				});
 			},
 			_onPageNumberChangedEvent: function(evt) {
 				var newPage = parseInt(evt.detail.page);
@@ -208,11 +297,49 @@
 			},
 			_setScale: function(newScale) {
 				this._pdfViewer.currentScaleValue = Math.max(
-					this._minPageScale,
-					Math.min(this._maxPageScale, newScale)
+					this.minPageScale,
+					Math.min(this.maxPageScale, newScale)
 				);
 
 				this._pageScale = this._pdfViewer.currentScale;
+			},
+			_getFullscreenTarget: function() {
+				return this;
+			},
+			_onMouseEnter: function() {
+				this.addEventListener('mousemove', this._onMouseMove);
+			},
+			_onMouseLeave: function(e) {
+				// Handle a Chrome bug where "mouseleave" event may be sporadically fired when interacting
+				// with element, with relatedTarget/toElement of "null"
+				// This could also happen when switching away from the tab/window, but on re-entry
+				// this element get another mouseleave/etc. event if the mouse is outside of the element
+				if (e.relatedTarget || e.toElement) {
+					clearTimeout(this._recentInteractionTimer);
+
+					this.removeEventListener('mousemove', this._onMouseMove);
+					this._hasRecentInteraction = false;
+				}
+			},
+			_onMouseMove: function() {
+				this._onInteraction();
+			},
+			_onInteraction: function() {
+				this._hasRecentInteraction = true;
+
+				clearTimeout(this._recentInteractionTimer);
+
+				this._recentInteractionTimer = setTimeout(() => {
+					this._hasRecentInteraction = false;
+				}, 2000);
+			},
+			_onFocusOut: function(e) {
+				if (!D2L.Dom.isComposedAncestor(this, e.relatedTarget)) {
+					this._hasRecentInteraction = false;
+				}
+			},
+			_computeShowToolbar: function(isLoaded, hasRecentInteraction) {
+				return !!isLoaded && !!hasRecentInteraction;
 			}
 		});
 	</script>

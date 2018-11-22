@@ -1,253 +1,130 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../d2l-icons/d2l-icon.html">
+<link rel="import" href="../d2l-polymer-behaviors/d2l-dom.html">
+<link rel="import" href="../d2l-polymer-behaviors/d2l-focusable-arrowkeys-behavior.html">
 <link rel="import" href="../d2l-typography/d2l-typography-shared-styles.html">
-<link rel="import" href="localize-behavior.html">
+<link rel="import" href="./d2l-pdf-viewer-toolbar-button.html">
+<link rel="import" href="./localize-behavior.html">
 
 <script src="./util/namespace.js"></script>
 
 <dom-module id="d2l-pdf-viewer-toolbar">
 	<template strip-whitespace>
 		<style>
-			#toolbarContainer {
-				display: flex;
-				align-items: center;
-				justify-content: space-evenly;
-				padding: 10px;
-				position: relative;
-				height: 29px;
-				background: #f1f1f1;
-				background: linear-gradient(to bottom, #f1f1f1 0%,#e4e4e4 100%);
-				box-shadow: inset 1px 0 0 hsla(0,0%,100%,.08),
-							inset 0 1px 1px hsla(0,0%,0%,.15),
-							inset 0 -1px 0 hsla(0,0%,100%,.05),
-							0 1px 0 hsla(0,0%,0%,.15),
-							0 1px 1px hsla(0,0%,0%,.1);
+			:host {
+				user-select: none;
+				width: 100%;
 			}
 
-			:host-context([dir="rtl"]) #toolbarContainer {
-				box-shadow: inset -1px 0 0 hsla(0,0%,100%,.08),
-							inset 0 1px 1px hsla(0,0%,0%,.15),
-							inset 0 -1px 0 hsla(0,0%,100%,.05),
-							0 1px 0 hsla(0,0%,0%,.15),
-							0 1px 1px hsla(0,0%,0%,.1);
+			.outer-container {
+				display: flex;
+				justify-content: center;
 			}
 
 			.toolbar-container {
-				display: flex;
 				align-items: center;
+				background-color: rgba(86, 90, 92, 0.8); /* can't use d2l-colors (ferrite) with opacity on backgrounds in pure CSS */
+				border-radius: 8px;
+				color: white;
+				display: inline-flex;
+				position: relative;
 			}
 
-			.right-spacer {
-				width: 68px;
+			.control-container {
+				align-items: center;
+				display: inline-flex;
+				position: relative;
 			}
 
-			.toolbarLabel {
-				@apply --d2l-label-text;
-				font-size: 0.8rem;
-				min-width: 16px;
-				padding: 3px 6px 3px 2px;
-				margin: 4px 2px 4px 0;
-				border: 1px solid transparent;
-				border-radius: 2px;
-				text-align: left;
-				cursor: default;
-				user-select: none;
+			.toolbar-container > *,
+			.control-container > * {
+				flex: 0 0 auto;
 			}
 
-			:host-context([dir="rtl"]) .toolbarLabel {
-				padding: 3px 2px 3px 6px;
-				margin: 4px 0 4px 2px;
+			.toolbar-label {
+				@apply --d2l-body-compact-text;
 			}
 
-			.toolbarField {
-				padding: 3px 6px;
-				margin: 2px 0 4px 5px;
-				border: 1px solid transparent;
-				border-radius: 2px;
-				background-clip: padding-box;
-				border: 1px solid hsla(0,0%,0%,.35);
-				border-color: hsla(0,0%,0%,.32) hsla(0,0%,0%,.38) hsla(0,0%,0%,.42);
-				box-shadow: 0 1px 0 hsla(0,0%,0%,.05) inset,
-							0 1px 0 hsla(0,0%,100%,.05);
-				outline-style: none;
-				transition-property: background-color, border-color, box-shadow;
-				transition-duration: 150ms;
-				transition-timing-function: ease;
+			.control-container {
+				margin: 0 12px 0 15px;
 			}
 
-			#numPages {
-				color: #666666;
-				padding-left: 4px;
-				top: -3px;
+			:host-context([dir="rtl"]) .control-container {
+				margin: 0 15px 0 12px;
 			}
 
-			:host-context([dir="rtl"]) #numPages {
-				padding-left: 0;
-				padding-right: 4px;
+			.info-container {
+				margin: 0 15px 0 18px;
 			}
 
-			.toolbarField.pageNumber {
-				-moz-appearance: textfield; /* hides the spinner in moz */
-				min-width: 16px;
-				text-align: center;
-				width: 40px;
+			:host-context([dir="rtl"]) .info-container {
+				margin: 0 18px 0 15px;
 			}
 
-			.toolbarField.pageNumber::-webkit-inner-spin-button,
-			.toolbarField.pageNumber::-webkit-outer-spin-button {
-				-webkit-appearance: none;
-				margin: 0;
-			}
-
-			.toolbarField:hover {
-				border-color: hsla(0,0%,0%,.4) hsla(0,0%,0%,.43) hsla(0,0%,0%,.45);
-			}
-
-			.toolbarField:focus {
-				border-color: hsla(204,100%,65%,.8) hsla(204,100%,65%,.85) hsla(204,100%,65%,.9);
-			}
-
-			:host-context([dir="rtl"]) .toolbarField {
-				margin: 2px 5px 4px 0;
-			}
-
-			.toolbarButton {
-				border: 0 none;
-				background: none;
-				width: 32px;
-				height: 25px;
-				margin: 2px 2px 4px 0;
-				min-width: 16px;
-				padding: 2px 6px 0;
-				border-radius: 2px;
-				/* Opera does not support user-select, use <... unselectable="on"> instead */
-				cursor: default;
-				transition-property: background-color, border-color, box-shadow;
-				transition-duration: 150ms;
-				transition-timing-function: ease;
-			}
-
-			.toolbarButton[disabled] {
-				opacity: .5;
-			}
-
-			.toolbarButton:hover:not(:disabled),
-			.toolbarButton:focus:not(:disabled) {
-				background-color: hsla(0,0%,0%,.12);
-				background-image: linear-gradient(hsla(0,0%,100%,.05), hsla(0,0%,100%,0));
-				background-clip: padding-box;
-				border: 1px solid hsla(0,0%,0%,.35);
-				border-color: hsla(0,0%,0%,.32) hsla(0,0%,0%,.38) hsla(0,0%,0%,.42);
-				box-shadow: 0 1px 0 hsla(0,0%,100%,.05) inset,
-							0 0 1px hsla(0,0%,100%,.15) inset,
-							0 1px 0 hsla(0,0%,100%,.05);
-			}
-
-			.toolbarButton:hover:active:not(:disabled),
-			.overlayButton:hover:active:not(:disabled) {
-				background-color: hsla(0,0%,0%,.2);
-				background-image: linear-gradient(hsla(0,0%,100%,.05), hsla(0,0%,100%,0));
-				border-color: hsla(0,0%,0%,.35) hsla(0,0%,0%,.4) hsla(0,0%,0%,.45);
-				box-shadow: 0 1px 1px hsla(0,0%,0%,.1) inset,
-							0 0 1px hsla(0,0%,0%,.2) inset,
-							0 1px 0 hsla(0,0%,100%,.05);
-				transition-property: background-color, border-color, box-shadow;
-				transition-duration: 10ms;
-				transition-timing-function: linear;
-			}
-
-			:host-context([dir="rtl"]) .toolbarButton {
-				margin: 2px 0 4px 2px;
-			}
-
-			@media screen and (max-width: 767px) {
-				.right-spacer {
-					display: none;
-				}
+			d2l-pdf-viewer-toolbar-button {
+				margin: 6px;
 			}
 		</style>
-		<div id="toolbarContainer">
+		<div class="outer-container">
 			<div class="toolbar-container">
-				<button id="zoomOut"
-					class="toolbarButton zoomOut"
-					disabled$="[[_zoomOutButtonDisabled(pageScale, minPageScale)]]"
-					on-tap="_onTapZoomOut"
-					aria-label$="[[localize('zoomOutLabel')]]"
-					title$="[[localize('zoomOutTitle')]]">
-					<d2l-icon icon="d2l-tier1:zoom-out"></d2l-icon>
-				</button>
-				<button id="zoomIn"
-					class="toolbarButton zoomIn"
-					disabled$="[[_zoomInButtonDisabled(pageScale, maxPageScale)]]"
-					on-tap="_onTapZoomIn"
-					aria-label$="[[localize('zoomInLabel')]]"
-					title$="[[localize('zoomInTitle')]]">
-					<d2l-icon icon="d2l-tier1:zoom-in"></d2l-icon>
-				</button>
+				<div class="info-container">
+					<span
+						id="pageNumber"
+						class="toolbar-label"
+						aria-label$="[[localize('pageLabel')]]">
+						[[localize('pageOfPages', 'pageNumber', pageNumber, 'pagesCount', pagesCount)]]
+					</span>
+				</div>
+				<div class="control-container" role="group">
+					<d2l-pdf-viewer-toolbar-button
+						active
+						id="zoomOutButton"
+						title="[[localize('zoomOutTitle')]]"
+						icon="d2l-tier1:zoom-out"
+						on-tap="_onZoomOutButtonTapped"
+						aria-label="[[localize('zoomOutLabel')]]"
+						aria-disabled="[[_zoomOutButtonDisabled(pageScale, minPageScale)]]">
+					</d2l-pdf-viewer-toolbar-button>
+					<d2l-pdf-viewer-toolbar-button
+						id="zoomInButton"
+						on-tap="_onZoomInButtonTapped"
+						title="[[localize('zoomInTitle')]]"
+						icon="d2l-tier1:zoom-in"
+						aria-label="[[localize('zoomInLabel')]]"
+						aria-disabled="[[_zoomInButtonDisabled(pageScale, maxPageScale)]]">
+					</d2l-pdf-viewer-toolbar-button>
+					<d2l-pdf-viewer-toolbar-button
+						toggle
+						id="fullscreenButton"
+						on-tap="_onToggleFullscreenButtonTapped"
+						title="[[localize('presentationModeTitle')]]"
+						icon="[[_getFullscreenIcon(isFullscreen)]]"
+						aria-label="[[localize('presentationModeLabel')]]"
+						pressed="[[isFullscreen]]"
+						disabled="[[!fullscreenAvailable]]">
+					</d2l-pdf-viewer-toolbar-button>
+				</div>
 			</div>
-			<div class="toolbar-container">
-				<button id="previous"
-					class="toolbarButton pageUp"
-					disabled$="[[_previousButtonDisabled(pageNumber)]]"
-					on-tap="_onTapPreviousPage"
-					aria-label$="[[localize('previousLabel')]]"
-					title$="[[localize('previousTitle')]]">
-					<d2l-icon icon="d2l-tier1:chevron-up"></d2l-icon>
-				</button>
-				<input id="pageNumber"
-					class="toolbarField pageNumber"
-					type$="[[_pageNumberInputType(hasPageLabels)]]"
-					max$="[[_pageNumberInputMax(pagesCount)]]"
-					value="{{_inputPageNumber::input}}"
-					on-change="_onChangePageNumberInput"
-					aria-label$="[[localize('pageLabel')]]">
-				<span id="numPages" class="toolbarLabel">
-					[[_numPagesLabel(hasPageLabels, pageNumber, pagesCount)]]
-				</span>
-				<button id="next"
-					class="toolbarButton pageDown"
-					disabled$="[[_nextButtonDisabled(pageNumber, pagesCount)]]"
-					on-tap="_onTapNextPage"
-					aria-label$="[[localize('nextLabel')]]"
-					title$="[[localize('nextTitle')]]">
-					<d2l-icon icon="d2l-tier1:chevron-down"></d2l-icon>
-				</button>
-			</div>
-			<span class="right-spacer"></span>
 		</div>
 	</template>
 	<script>
 		Polymer({
 			is: 'd2l-pdf-viewer-toolbar',
+			hostAttributes: {
+				role: 'toolbar'
+			},
+			listeners: {
+				'focusin': '_onFocusIn',
+				'focusout': '_onFocusOut'
+			},
 			properties: {
-				pageLabel: String,
-				pageNumber: {
-					type: Number,
-					observer: '_onPageNumberChanged'
-				},
-				pagesCount: {
-					type: Number,
-					value: 0
-				},
-				hasPageLabels: {
+				fullscreenAvailable: {
 					type: Boolean,
 					value: false
 				},
-				pageScale: {
-					type: Number,
-					value: 0
-				},
-				_minScale: {
-					type: Number,
-					value: 0
-				},
-				_maxScale: {
-					type: Number,
-					value: 0
-				},
-				_inputPageNumber: {
-					type: Number,
-					value: 0
+				isFullscreen: {
+					type: Boolean,
+					value: false
 				},
 				minPageScale: {
 					type: Number,
@@ -256,90 +133,109 @@
 				maxPageScale: {
 					type: Number,
 					value: 0
+				},
+				pagesCount: {
+					type: Number,
+					value: 0
+				},
+				pageNumber: {
+					type: Number,
+					value: 0
+				},
+				pageScale: {
+					type: Number,
+					value: 0
+				},
+				pdfName: {
+					type: String
 				}
 			},
 
 			behaviors: [
-				window.D2L.PolymerBehaviors.FileViewer.LocalizeBehavior
+				window.D2L.PolymerBehaviors.FileViewer.LocalizeBehavior,
+				window.D2L.PolymerBehaviors.FocusableArrowKeysBehavior
 			],
 
-			// --element attributes--
-			// compute page count label
-			_numPagesLabel: function(hasPageLabels, pageNumber, pagesCount) {
-				return hasPageLabels ?
-					this.localize('pageOfPages', 'pageNumber', pageNumber, 'pagesCount', pagesCount) :
-					this.localize('pageOf', 'pagesCount', pagesCount);
+			attached: function() {
+				Polymer.RenderStatus.afterNextRender(this, () => {
+					this._initRovingTabIndex();
+				});
 			},
-			// compute page number input type
-			_pageNumberInputType: function(hasPageLabels) {
-				return hasPageLabels ?
-					'text' :
-					'number';
+
+			_getEventTarget: function() {
+				return this;
 			},
-			// compute page number input maximum
-			_pageNumberInputMax: function(pagesCount) {
-				return pagesCount;
-			},
-			// compute previous button disabled
-			_previousButtonDisabled: function(pageNumber) {
-				return pageNumber <= 1;
-			},
-			// compute next button disabled
-			_nextButtonDisabled: function(pageNumber, pagesCount) {
-				return pageNumber >= pagesCount;
-			},
-			// compute zoom out button disabled
 			_zoomOutButtonDisabled: function(pageScale, minPageScale) {
 				return pageScale <= minPageScale || Math.abs(pageScale - minPageScale) < Number.EPSILON;
 			},
-			// compute zoom in button disabled
 			_zoomInButtonDisabled: function(pageScale, maxPageScale) {
 				return pageScale >= maxPageScale || Math.abs(pageScale - maxPageScale) < Number.EPSILON;
 			},
-			// --events--
-			// click previous page
-			_onTapPreviousPage: function() {
-				this.dispatchEvent(
-					new CustomEvent('d2l-pdf-viewer-toolbar-previous')
-				);
-			},
-			// click next page
-			_onTapNextPage: function() {
-				this.dispatchEvent(
-					new CustomEvent('d2l-pdf-viewer-toolbar-next')
-				);
-			},
-			// click zoom in
-			_onTapZoomIn: function() {
-				this.dispatchEvent(
-					new CustomEvent('d2l-pdf-viewer-toolbar-zoom-in')
-				);
-			},
-			// click zoom out
-			_onTapZoomOut: function() {
+			_onZoomOutButtonTapped: function() {
 				this.dispatchEvent(
 					new CustomEvent('d2l-pdf-viewer-toolbar-zoom-out')
 				);
 			},
-			// change page number
-			_onChangePageNumberInput: function() {
-				if (this._inputPageNumber > this.pagesCount || this._inputPageNumber < 1) {
-					this._inputPageNumber = this.pageNumber;
+			_onZoomInButtonTapped: function() {
+				this.dispatchEvent(
+					new CustomEvent('d2l-pdf-viewer-toolbar-zoom-in')
+				);
+			},
+			_onToggleFullscreenButtonTapped: function() {
+				this.dispatchEvent(
+					new CustomEvent('d2l-pdf-viewer-toolbar-toggle-fullscreen')
+				);
+			},
+			_getFullscreenIcon: function(isFullscreen) {
+				return isFullscreen
+					? 'd2l-tier1:smallscreen'
+					: 'd2l-tier1:fullscreen';
+			},
+			_initRovingTabIndex: function() {
+				const toolbarControls = this.getElementsByTagName('d2l-pdf-viewer-toolbar-button');
+				const toolbarButtons = Array.prototype.slice.call(toolbarControls)
+					.map(control => {
+						return control.getElementsByTagName('button')[0];
+					});
+
+				this.arrowKeyFocusablesContainer = this.$$('.control-container');
+
+				this.arrowKeyFocusablesProvider = () => {
+					const activeButtons = toolbarButtons.filter(button => !button.disabled);
+
+					return Promise.resolve(activeButtons);
+				};
+			},
+			_onFocusIn: function(e) {
+				if (!e.target) {
 					return;
 				}
 
-				this.dispatchEvent(
-					new CustomEvent(
-						'd2l-pdf-viewer-toolbar-page-change', {
-							detail: {
-								page: this.$.pageNumber.value
-							}
-						}
-					)
-				);
+				var targetParent = e.target.parentElement;
+
+				if (targetParent.tagName.toLowerCase() === 'd2l-pdf-viewer-toolbar-button') {
+					e.target.tabIndex = 0;
+				}
 			},
-			_onPageNumberChanged: function(newPageNumber) {
-				this._inputPageNumber = newPageNumber;
+			_onFocusOut: function(e) {
+				/* Make not-tabbable if we know we're moving to another button */
+				if (!e.target || !e.relatedTarget) {
+					return;
+				}
+
+				var targetParent = e.target.parentElement;
+
+				if (targetParent.tagName.toLowerCase() === 'd2l-pdf-viewer-toolbar-button') {
+					var parent = e.relatedTarget.parentElement;
+
+					if (!e.relatedTarget.tagName.toLowerCase() === 'd2l-pdf-viewer-toolbar-button') {
+						return;
+					}
+
+					if (D2L.Dom.isComposedAncestor(this, parent)) {
+						e.target.tabIndex = -1;
+					}
+				}
 			}
 		});
 	</script>

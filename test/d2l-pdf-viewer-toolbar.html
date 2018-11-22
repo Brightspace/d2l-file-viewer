@@ -16,7 +16,8 @@
 					pages-count="10"
 					page-scale="1.0"
 					min-page-scale="0.1"
-					max-page-scale="10">
+					max-page-scale="10"
+					fullscreen-available>
 				</d2l-pdf-viewer-toolbar>
 			</template>
 		</test-fixture>
@@ -29,29 +30,25 @@
 						toolbar = fixture('basic');
 					});
 
-					it('should fire d2l-pdf-viewer-toolbar-previous when previous page button is clicked', function(done) {
-						toolbar.addEventListener('d2l-pdf-viewer-toolbar-previous', function() {
-							done();
-						});
-						MockInteractions.tap(toolbar.$.previous);
-					});
-					it('should fire d2l-pdf-viewer-toolbar-next when next page button is clicked', function(done) {
-						toolbar.addEventListener('d2l-pdf-viewer-toolbar-next', function() {
-							done();
-						});
-						MockInteractions.tap(toolbar.$.next);
-					});
 					it('should fire d2l-pdf-viewer-toolbar-zoom-in when zoom in button is clicked', function(done) {
 						toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-in', function() {
 							done();
 						});
-						MockInteractions.tap(toolbar.$.zoomIn);
+						MockInteractions.tap(toolbar.$.zoomInButton);
 					});
+
 					it('should fire d2l-pdf-viewer-toolbar-zoom-out when zoom out button is clicked', function(done) {
 						toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-out', function() {
 							done();
 						});
-						MockInteractions.tap(toolbar.$.zoomOut);
+						MockInteractions.tap(toolbar.$.zoomOutButton);
+					});
+
+					it('should fire d2l-pdf-viewer-toolbar-toggle-fullscreen when fullscreen button is clicked', function(done) {
+						toolbar.addEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', function() {
+							done();
+						});
+						MockInteractions.tap(toolbar.$.fullscreenButton);
 					});
 				});
 
@@ -61,70 +58,35 @@
 					});
 
 					it('should render all elements correctly', function() {
-						expect(toolbar.$.zoomOut.hasAttribute('disabled')).to.be.false;
-						expect(toolbar.$.zoomIn.hasAttribute('disabled')).to.be.false;
-						expect(toolbar.$.previous.hasAttribute('disabled')).to.be.false;
-						expect(toolbar.$.next.hasAttribute('disabled')).to.be.false;
-						expect(toolbar.$.numPages.textContent.trim()).to.equal('of 10');
-						expect(parseInt(toolbar.$.pageNumber.value)).to.equal(4);
-						expect(parseInt(toolbar.$.pageNumber.max)).to.equal(10);
-						expect(toolbar.$.pageNumber.type).to.equal('number');
+						for (const disabledType of ['disabled', 'ariaDisabled']) {
+							expect(toolbar.$.zoomOutButton[disabledType]).to.be.false;
+							expect(toolbar.$.zoomInButton[disabledType]).to.be.false;
+							expect(toolbar.$.fullscreenButton[disabledType]).to.be.false;
+						}
+
+						expect(toolbar.$.pageNumber.textContent.trim()).to.equal('Page 4 / 10');
 					});
 
-					it('should disable zoomIn when pageScale >= maxPageScale', function(done) {
+					it('should disable the "zoom in" button when pageScale >= maxPageScale', function(done) {
 						toolbar.pageScale = toolbar.maxPageScale;
 						setTimeout(function() {
-							expect(toolbar.$.zoomIn.hasAttribute('disabled')).to.be.true;
+							expect(toolbar.$.zoomInButton.ariaDisabled).to.be.true;
 							done();
 						});
 					});
 
-					it('should disable zoomOut when pageScale <= minPageScale', function(done) {
+					it('should disable the "zoom out" button when pageScale <= minPageScale', function(done) {
 						toolbar.pageScale = toolbar.minPageScale;
 						setTimeout(function() {
-							expect(toolbar.$.zoomOut.hasAttribute('disabled')).to.be.true;
+							expect(toolbar.$.zoomOutButton.ariaDisabled).to.be.true;
 							done();
 						});
 					});
 
-					it('should disable previous when pageNumber <= 1', function(done) {
-						toolbar.pageNumber = 1;
+					it('should disable the "fullscreen" button when fullscreenAvailable is false', function(done) {
+						toolbar.fullscreenAvailable = false;
 						setTimeout(function() {
-							expect(toolbar.$.previous.hasAttribute('disabled')).to.be.true;
-							done();
-						});
-					});
-
-					it('should disable next when pageNumber >= pagesCount', function(done) {
-						toolbar.pageNumber = toolbar.pagesCount;
-						setTimeout(function() {
-							expect(toolbar.$.next.hasAttribute('disabled')).to.be.true;
-							done();
-						});
-					});
-
-					it('should not display page label if hasPageLabels is false', function(done) {
-						toolbar.pageLabel = 'test';
-						setTimeout(function() {
-							expect(toolbar.$.pageNumber.value.includes('test')).to.be.false;
-							done();
-						});
-					});
-
-					it.skip('should display page label & change "out of" text if hasPageLabels is true', function(done) {
-						toolbar.hasPageLabels = true;
-						toolbar.pageLabel = 'test';
-						setTimeout(function() {
-							expect(toolbar.$.pageNumber.value.includes('test')).to.be.true;
-							expect(toolbar.$.numPages.textContent.trim()).to.equal('4 of 10');
-							done();
-						});
-					});
-
-					it('should not display page label if hasPageLabels is false', function(done) {
-						toolbar.hasPageLabels = true;
-						setTimeout(function() {
-							expect(toolbar.$.pageNumber.type).to.equal('text');
+							expect(toolbar.$.fullscreenButton.disabled).to.be.true;
 							done();
 						});
 					});

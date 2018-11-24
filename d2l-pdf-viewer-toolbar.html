@@ -145,9 +145,6 @@
 				pageScale: {
 					type: Number,
 					value: 0
-				},
-				pdfName: {
-					type: String
 				}
 			},
 
@@ -162,9 +159,6 @@
 				});
 			},
 
-			_getEventTarget: function() {
-				return this;
-			},
 			_zoomOutButtonDisabled: function(pageScale, minPageScale) {
 				return pageScale <= minPageScale || Math.abs(pageScale - minPageScale) < Number.EPSILON;
 			},

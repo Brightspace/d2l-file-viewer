@@ -23,7 +23,7 @@ Polymer-based web component progress bar for the page load status
 				will-change: transform;
 			}
 			.determinate {
-				transition: transform 50ms linear;
+				transition: transform 50ms ease-out;
 			}
 			.indeterminate-in-progress {
 				transition: transform 10s cubic-bezier(.16,1,.4,1);
@@ -34,7 +34,9 @@ Polymer-based web component progress bar for the page load status
 				transform: translate(0%, 0);
 			}
 		</style>
-		<div id="progressBar" class="progress-bar"></div>
+		<div>
+			<div id="progressBar" class="progress-bar"></div>
+		</div>
 	</template>
 	<script>
 		'use strict';
@@ -59,57 +61,54 @@ Polymer-based web component progress bar for the page load status
 					*/
 					autostart: {
 						type: Boolean,
-						observer: '_autoStartChanged',
 						reflectToAttribute: true,
 						value: false
 					},
 					/**
-					* If true, indicates the process is indeterminate (exact progress is unknown until complete).
+					* If true, indicates the process is indeterminate.
 					*/
 					indeterminate: {
 						type: Boolean,
-						observer: '_indeterminateChanged',
 						reflectToAttribute: true,
 						value: false
 					},
+					/**
+					* Value which indicates the action is 0% complete. (determinate only)
+					*/
 					min: {
 						type: Number,
-						value: 0,
-						observer: '_onMinChanged'
+						value: 0
 					},
 					/**
-					* The value of "now" which will indicate the action is complete. (determinate only)
+					* Value which indicates the action is 100% complete. (determinate only)
 					*/
 					max: {
 						type: Number,
-						value: 100,
-						observer: '_onMaxChanged'
+						value: 100
 					},
 					/**
 					* The current progress of the action. (determinate only)
 					*/
 					now: {
 						type: Number,
-						value: 0,
-						reflectToAttribute: true,
-						observer: '_onNowChanged'
+						value: 0
 					}
-
 				},
+
+				observers: [
+					'_onConfigChanged(indeterminate, autostart)',
+					'_onProgressChanged(now, min, max)'
+				],
 
 				ready: function() {
 					this._progress = 0;
 					this._indeterminateState = indeterminateStates.RESET;
 
-					this.$$('.progress-bar').addEventListener('transitionend', () => {
-						if (this._progress === 100) {
-							Polymer.RenderStatus.afterNextRender(this, () => {
-								this.dispatchEvent(new CustomEvent('d2l-progress-bar-animation-complete'));
-							});
-						}
-					});
+					this._onTransitionEndEvent = this._onTransitionEndEvent.bind(this);
 
-					if (this.autostart) {
+					this.$.progressBar.addEventListener('transitionend', this._onTransitionEndEvent);
+
+					if (this.autostart && this.indeterminate) {
 						this.start();
 					}
 				},
@@ -129,6 +128,7 @@ Polymer-based web component progress bar for the page load status
 							this._setIndeterminateState(indeterminateStates.IN_PROGRESS);
 						}
 					}.bind(this), 100);
+
 				},
 
 				/**
@@ -136,22 +136,6 @@ Polymer-based web component progress bar for the page load status
 				*/
 				finish: function() {
 					this._setIndeterminateState(indeterminateStates.COMPLETE);
-				},
-
-				_autoStartChanged: function(autostart) {
-					if (autostart && this.indeterminate) {
-						this.start();
-					}
-				},
-
-				_indeterminateChanged: function(indeterminate) {
-					const progressBar = this.$$('.progress-bar');
-
-					this.toggleClass('determinate', !indeterminate, div);
-
-					if (indeterminate && this.autostart) {
-						this.start();
-					}
 				},
 
 				_setIndeterminateState: function(state) {
@@ -164,10 +148,8 @@ Polymer-based web component progress bar for the page load status
 
 					this._indeterminateState = state;
 
-					const progressBar = this.$$('.progress-bar');
-
-					this.toggleClass('indeterminate-in-progress', inProgress, progressBar);
-					this.toggleClass('indeterminate-complete', complete, progressBar);
+					this.toggleClass('indeterminate-in-progress', inProgress, this.$.progressBar);
+					this.toggleClass('indeterminate-complete', complete, this.$.progressBar);
 
 					this._progress = 0;
 
@@ -176,24 +158,44 @@ Polymer-based web component progress bar for the page load status
 					}
 				},
 
-				_onMinChanged: function(min) {
+				_onConfigChanged: function(indeterminate, autostart) {
+					const progressBar = this.$$('.progress-bar');
+
+					this.toggleClass('determinate', !indeterminate, progressBar);
+
+					if (indeterminate) {
+						this.removeAttribute('aria-valuemin');
+						this.removeAttribute('aria-valuemax');
+						this.removeAttribute('aria-valuenow');
+
+						if (autostart) {
+							this.start();
+						}
+					}
+				},
+
+				_onProgressChanged: function(now, min, max) {
+					if (this.indeterminate) {
+						return;
+					}
+
+					const progressBar = this.$$('.progress-bar');
+					now = Math.max(Math.min(now, max), min);
+
+					this._progress = (now - min) / (max - min) * 100;
+
+					progressBar.style.transform = 'translate(-' + (100 - this._progress) + '%,0)';
+
 					this.setAttribute('aria-valuemin', min);
-				},
-
-				_onMaxChanged: function(max) {
 					this.setAttribute('aria-valuemax', max);
+					this.setAttribute('aria-valuenow', now);
 				},
 
-				_onNowChanged: function(now) {
-					if (!this.indeterminate) {
-						const progressBar = this.$$('.progress-bar');
-						now = Math.max(Math.min(now, this.max), this.min);
-
-						this._progress = (now - this.min) / (this.max - this.min) * 100;
-
-						progressBar.style.transform = 'translate(-' + (100 - this._progress) + '%,0)';
-
-						this.setAttribute('aria-valuenow', now);
+				_onTransitionEndEvent: function() {
+					if (this._progress === 100) {
+						setTimeout(function() {
+							this.dispatchEvent(new CustomEvent('d2l-progress-bar-animation-complete'));
+						}.bind(this), 100);
 					}
 				}
 			});

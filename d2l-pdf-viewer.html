@@ -208,6 +208,8 @@
 				this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-zoom-out', this._onZoomOutEvent);
 				this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-page-change', this._onPageNumberChangedEvent);
 				this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', this._onFullscreenEvent);
+
+				this.$.loadingBar.removeEventListener('d2l-progress-bar-animation-complete', this._onProgressAnimationCompleteEvent);
 			},
 			_addEventListeners: function() {
 				this._onMouseEnter = this._onMouseEnter.bind(this); // don't add yet- just bind
@@ -220,6 +222,7 @@
 				this._onZoomOutEvent = this._onZoomOutEvent.bind(this);
 				this._onPageNumberChangedEvent = this._onPageNumberChangedEvent.bind(this);
 				this._onFullscreenEvent = this._onFullscreenEvent.bind(this);
+				this._onProgressAnimationCompleteEvent = this._onProgressAnimationCompleteEvent.bind(this);
 
 				window.addEventListener('resize', this._resize);
 
@@ -233,9 +236,7 @@
 				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-page-change', this._onPageNumberChangedEvent);
 				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', this._onFullscreenEvent);
 
-				this.$.loadingBar.addEventListener('d2l-progress-bar-animation-complete', () => {
-					this.$.loadingBar.hidden = true;
-				});
+				this.$.loadingBar.addEventListener('d2l-progress-bar-animation-complete', this._onProgressAnimationCompleteEvent);
 			},
 			_resize: function() {
 				if (!this._resizeThrottleHandle) {
@@ -289,6 +290,9 @@
 				requestAnimationFrame(() => {
 					this._pageScale = this._pdfViewer.currentScale;
 				});
+			},
+			_onProgressAnimationCompleteEvent: function() {
+				this.$.loadingBar.hidden = true;
 			},
 			_onPageNumberChangedEvent: function(evt) {
 				var newPage = parseInt(evt.detail.page);

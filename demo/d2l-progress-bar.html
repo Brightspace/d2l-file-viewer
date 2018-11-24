@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+		<title>d2l-file-viewer demo</title>
+		<script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+		<link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+		<link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+		<link rel="import" href="../../d2l-colors/d2l-colors.html">
+		<link rel="import" href="../d2l-progress-bar.html">
+		<custom-style>
+			<style is="custom-style" include="demo-pages-shared-styles"></style>
+		</custom-style>
+		<custom-style include="d2l-typography">
+			<style is="custom-style" include="d2l-typography"></style>
+		</custom-style>
+		<style>
+			html {
+				font-size: 20px;
+			}
+
+			d2l-progress-bar {
+				margin: 10px 0 10px 0;
+			}
+		</style>
+	</head>
+	<body unresolved>
+		<div class="vertical-section-container centered d2l-typography">
+			<h3>d2l-progress-bar</h3>
+
+			<h4>Indeterminate</h4>
+			<demo-snippet>
+				<template>
+					<custom-style>
+						<style is="custom-style">
+							d2l-progress-bar.celestine {
+								--d2l-progress-bar-primary-color: var(--d2l-color-celestine);
+							}
+
+							d2l-progress-bar.red {
+								--d2l-progress-bar-primary-color: red;
+							}
+						</style>
+					</custom-style>
+					<d2l-progress-bar indeterminate autostart></d2l-progress-bar>
+					<d2l-progress-bar indeterminate autostart class="celestine"></d2l-progress-bar>
+					<d2l-progress-bar indeterminate autostart class="red"></d2l-progress-bar>
+					<button id="finishButton" onclick="forceIndeterminateFinish();">Force Finish</button>
+				</template>
+			</demo-snippet>
+
+			<h4>Determinate</h4>
+			<demo-snippet>
+				<template>
+					<d2l-progress-bar id="determinate"></d2l-progress-bar>
+					<button id="startButton" onclick="startDeterminateProgressBar();">Start</button>
+				</template>
+			</demo-snippet>
+		</div>
+
+		<script>
+			'use strict';
+
+			let progressIntervalHandle;
+
+			/* eslint-disable no-unused-vars */
+			function startDeterminateProgressBar() {
+				const determinateProgressBar = document.querySelector('#determinate');
+				determinateProgressBar.now = determinateProgressBar.min;
+
+				stopDeterminateProgressBar();
+
+				progressIntervalHandle = setInterval(() => {
+					determinateProgressBar.now = Math.min(determinateProgressBar.max, determinateProgressBar.now + Math.random() * 10 + 5);
+
+					if (determinateProgressBar.now >= determinateProgressBar.max) {
+						stopDeterminateProgressBar();
+					}
+				}, 500);
+			}
+
+			function stopDeterminateProgressBar() {
+				clearInterval(progressIntervalHandle);
+				progressIntervalHandle = null;
+			}
+
+			function startIndeterminate() {
+				const indeterminateFinishButton = document.getElementById('finishButton');
+				const indeterminateProgressBars = document.querySelectorAll('[indeterminate]');
+
+				indeterminateProgressBars.forEach(progressBar => {
+					progressBar.start();
+				});
+
+				indeterminateFinishButton.textContent = 'Force Finish';
+				indeterminateFinishButton.onclick = () => forceIndeterminateFinish();
+			}
+
+			function forceIndeterminateFinish() {
+				const indeterminateFinishButton = document.getElementById('finishButton');
+				const indeterminateProgressBars = document.querySelectorAll('[indeterminate]');
+
+				indeterminateProgressBars[0].addEventListener('d2l-progress-bar-animation-complete', () => {
+					indeterminateFinishButton.textContent = 'Restart';
+					indeterminateFinishButton.onclick = () => startIndeterminate();
+				});
+
+				indeterminateProgressBars.forEach(progressBar => {
+					progressBar.finish();
+				});
+			}
+		</script>
+	</body>
+</html>

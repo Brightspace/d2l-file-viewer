@@ -1,7 +1,8 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../d2l-page-load-progress/d2l-page-load-progress.html">
+<link rel="import" href="../d2l-colors/d2l-colors.html">
 <link rel="import" href="../fullscreen-api/fullscreen-api.html">
 <link rel="import" href="d2l-pdf-viewer-toolbar.html">
+<link rel="import" href="d2l-progress-bar.html">
 
 <!-- @note: aware that external stylesheets are very deprecated and NOT supported in Polymer 2+ -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf_viewer.css">
@@ -45,6 +46,10 @@
 				pointer-events: none;
 			}
 
+			d2l-progress-bar {
+				--d2l-progress-bar-primary-color: var(--d2l-color-celestine);
+			}
+
 			[hidden] {
 				display: none !important;
 			}
@@ -59,7 +64,7 @@
 			fullscreen-available="{{_isFullscreenAvailable}}">
 		</fullscreen-api>
 
-		<d2l-page-load-progress id="loadingBar" color="#006fbf" autohide></d2l-page-load-progress>
+		<d2l-progress-bar id="loadingBar"></d2l-progress-bar>
 		<d2l-pdf-viewer-toolbar
 			id="toolbar"
 			page-number="[[_pageNumber]]"
@@ -162,9 +167,15 @@
 				// Add event listeners before loading document
 				this._addEventListeners();
 
-				pdfjsLib.getDocument({
+				const loadingTask = pdfjsLib.getDocument({
 					url: this.src
-				}).then(pdfDocument => {
+				});
+
+				loadingTask.onProgress = (progressData) => {
+					this.$.loadingBar.now = (progressData.loaded / progressData.total) * 100;
+				};
+
+				loadingTask.then(pdfDocument => {
 					let pdfName = '';
 					const parts = this.src.split('/');
 
@@ -179,7 +190,6 @@
 
 					pdfLinkService.setDocument(pdfDocument, null);
 				}).catch(() => {
-					this.$.loadingBar.finish();
 					this.dispatchEvent(new CustomEvent('d2l-pdf-viewer-load-failed', {
 						bubbles: true,
 						composed: true
@@ -222,6 +232,10 @@
 				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-out', this._onZoomOutEvent);
 				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-page-change', this._onPageNumberChangedEvent);
 				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', this._onFullscreenEvent);
+
+				this.$.loadingBar.addEventListener('d2l-progress-bar-animation-complete', () => {
+					this.$.loadingBar.hidden = true;
+				});
 			},
 			_resize: function() {
 				if (!this._resizeThrottleHandle) {
@@ -242,12 +256,11 @@
 				}
 			},
 			_srcChanged: function() {
-				this.$.loadingBar.start();
+				this.$.loadingBar.now = 0;
 			},
 			_onPagesInitEvent: function() {
 				this._pdfViewer.currentScaleValue = 'page-width';
 				this._pageScale = this._pdfViewer.currentScale;
-				this.$.loadingBar.finish();
 				this._onInteraction();
 				this._isLoaded = true;
 			},

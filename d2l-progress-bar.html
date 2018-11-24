@@ -1,0 +1,202 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../d2l-colors/d2l-colors.html">
+<!--
+`d2l-progress-bar`
+Polymer-based web component progress bar for the page load status
+
+@demo demo/index.html
+-->
+<dom-module id="d2l-progress-bar">
+	<template strip-whitespace>
+		<style>
+			:host {
+				background-color: var(--d2l-color-sylvite);
+				display: block;
+				overflow: hidden;
+			}
+			:host, .progress-bar {
+				height: 4px;
+			}
+			.progress-bar {
+				background-color: var(--d2l-progress-bar-primary-color, --d2l-color-corundum);
+				transform: translate(-100%, 0);
+				will-change: transform;
+			}
+			.determinate {
+				transition: transform 50ms linear;
+			}
+			.indeterminate-in-progress {
+				transition: transform 10s cubic-bezier(.16,1,.4,1);
+				transform: translate(-1%, 0);
+			}
+			.indeterminate-complete {
+				transition: transform 300ms ease-in;
+				transform: translate(0%, 0);
+			}
+		</style>
+		<div id="progressBar" class="progress-bar"></div>
+	</template>
+	<script>
+		'use strict';
+
+		(function() {
+			const indeterminateStates = {
+				RESET: 0,
+				IN_PROGRESS: 1,
+				COMPLETE: 2
+			};
+
+			Polymer({
+				is: 'd2l-progress-bar',
+
+				hostAttributes: {
+					role: 'progressbar'
+				},
+
+				properties: {
+					/**
+					* Whether the progress bar should automatically begin loading. (indeterminate only)
+					*/
+					autostart: {
+						type: Boolean,
+						observer: '_autoStartChanged',
+						reflectToAttribute: true,
+						value: false
+					},
+					/**
+					* If true, indicates the process is indeterminate (exact progress is unknown until complete).
+					*/
+					indeterminate: {
+						type: Boolean,
+						observer: '_indeterminateChanged',
+						reflectToAttribute: true,
+						value: false
+					},
+					min: {
+						type: Number,
+						value: 0,
+						observer: '_onMinChanged'
+					},
+					/**
+					* The value of "now" which will indicate the action is complete. (determinate only)
+					*/
+					max: {
+						type: Number,
+						value: 100,
+						observer: '_onMaxChanged'
+					},
+					/**
+					* The current progress of the action. (determinate only)
+					*/
+					now: {
+						type: Number,
+						value: 0,
+						reflectToAttribute: true,
+						observer: '_onNowChanged'
+					}
+
+				},
+
+				ready: function() {
+					this._progress = 0;
+					this._indeterminateState = indeterminateStates.RESET;
+
+					this.$$('.progress-bar').addEventListener('transitionend', () => {
+						if (this._progress === 100) {
+							Polymer.RenderStatus.afterNextRender(this, () => {
+								this.dispatchEvent(new CustomEvent('d2l-progress-bar-animation-complete'));
+							});
+						}
+					});
+
+					if (this.autostart) {
+						this.start();
+					}
+				},
+
+				/**
+				* For indeterminate progress bars, starts or restarts the progress bar animation.
+				*/
+				start: function() {
+					if (!this.indeterminate) {
+						return;
+					}
+
+					this._setIndeterminateState(indeterminateStates.RESET);
+
+					setTimeout(function() {
+						if (this._indeterminateState === indeterminateStates.RESET) {
+							this._setIndeterminateState(indeterminateStates.IN_PROGRESS);
+						}
+					}.bind(this), 100);
+				},
+
+				/**
+				* For indeterminate progress bars, completes the progress bar animation, moving it quickly to 100%.
+				*/
+				finish: function() {
+					this._setIndeterminateState(indeterminateStates.COMPLETE);
+				},
+
+				_autoStartChanged: function(autostart) {
+					if (autostart && this.indeterminate) {
+						this.start();
+					}
+				},
+
+				_indeterminateChanged: function(indeterminate) {
+					const progressBar = this.$$('.progress-bar');
+
+					this.toggleClass('determinate', !indeterminate, div);
+
+					if (indeterminate && this.autostart) {
+						this.start();
+					}
+				},
+
+				_setIndeterminateState: function(state) {
+					if (!this.indeterminate) {
+						return;
+					}
+
+					var inProgress = state === indeterminateStates.IN_PROGRESS;
+					var complete = state === indeterminateStates.COMPLETE;
+
+					this._indeterminateState = state;
+
+					const progressBar = this.$$('.progress-bar');
+
+					this.toggleClass('indeterminate-in-progress', inProgress, progressBar);
+					this.toggleClass('indeterminate-complete', complete, progressBar);
+
+					this._progress = 0;
+
+					if (inProgress || complete) {
+						this._progress = inProgress ? 99 : 100;
+					}
+				},
+
+				_onMinChanged: function(min) {
+					this.setAttribute('aria-valuemin', min);
+				},
+
+				_onMaxChanged: function(max) {
+					this.setAttribute('aria-valuemax', max);
+				},
+
+				_onNowChanged: function(now) {
+					if (!this.indeterminate) {
+						const progressBar = this.$$('.progress-bar');
+						now = Math.max(Math.min(now, this.max), this.min);
+
+						this._progress = (now - this.min) / (this.max - this.min) * 100;
+
+						progressBar.style.transform = 'translate(-' + (100 - this._progress) + '%,0)';
+
+						this.setAttribute('aria-valuenow', now);
+					}
+				}
+			});
+		})();
+	</script>
+</dom-module>

@@ -29,11 +29,9 @@ Polymer-based web component progress bar
 			}
 			.indeterminate-in-progress {
 				transition: transform 10s cubic-bezier(.16,1,.4,1);
-				transform: translate(-1%, 0);
 			}
 			.indeterminate-complete {
 				transition: transform 300ms ease-in;
-				transform: translate(0%, 0);
 			}
 		</style>
 		<div>
@@ -44,11 +42,11 @@ Polymer-based web component progress bar
 		'use strict';
 
 		(function() {
-			const indeterminateStates = {
+			const indeterminateStates = Object.freeze({
 				RESET: 0,
 				IN_PROGRESS: 1,
 				COMPLETE: 2
-			};
+			});
 
 			Polymer({
 				is: 'd2l-progress-bar',
@@ -141,11 +139,13 @@ Polymer-based web component progress bar
 					this.toggleClass('indeterminate-in-progress', inProgress, this.$.progressBar);
 					this.toggleClass('indeterminate-complete', complete, this.$.progressBar);
 
-					this._progress = 0;
+					let progress = 0;
 
 					if (inProgress || complete) {
-						this._progress = inProgress ? 99 : 100;
+						progress = inProgress ? 99 : 100;
 					}
+
+					this._progress = progress;
 				},
 
 				_onConfigChanged: function(indeterminate, autostart) {
@@ -166,13 +166,14 @@ Polymer-based web component progress bar
 						return;
 					}
 
-					value = Math.min(value, max);
+					if (max <= 0) {
+						this.max = 1;
+						return;
+					}
+
+					value = Math.max(0, Math.min(value, max));
 
 					this._progress = (value / max) * 100;
-
-					fastdom.mutate(() => {
-						this.$.progressBar.style.transform = 'translate(-' + (100 - this._progress) + '%,0)';
-					});
 
 					this.setAttribute('aria-valuemax', max);
 					this.setAttribute('aria-valuenow', value);
@@ -185,6 +186,18 @@ Polymer-based web component progress bar
 							this.dispatchEvent(new CustomEvent('d2l-progress-bar-animation-complete'));
 						}.bind(this), 200);
 					}
+				},
+
+				set _progress(val) {
+					this.__progress = Math.max(0, Math.min(val, 100));
+
+					fastdom.mutate(() => {
+						this.$.progressBar.style.transform = 'translate(-' + (100 - this.__progress) + '%,0)';
+					});
+				},
+
+				get _progress() {
+					return this.__progress;
 				}
 			});
 		})();

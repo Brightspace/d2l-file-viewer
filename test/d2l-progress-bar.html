@@ -185,6 +185,13 @@
 
 						expect(elem.getAttribute('aria-valuenow')).to.equal('1');
 					});
+
+					it('should reset "max" to 1 if invalid', function() {
+						elem.max = 0;
+
+						expect(elem.max).to.equal(1);
+						expect(elem.getAttribute('aria-valuemax')).to.equal('1');
+					});
 				});
 
 				describe('attributes', function() {
@@ -207,7 +214,7 @@
 					});
 
 					it('should not auto-start', function() {
-						expect(elem._progress).to.eql(0);
+						expect(elem._indeterminateState).to.eql(0);
 					});
 				});
 			});

@@ -1,7 +1,8 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../d2l-page-load-progress/d2l-page-load-progress.html">
+<link rel="import" href="../d2l-colors/d2l-colors.html">
 <link rel="import" href="../fullscreen-api/fullscreen-api.html">
 <link rel="import" href="d2l-pdf-viewer-toolbar.html">
+<link rel="import" href="d2l-pdf-viewer-progress-bar.html">
 
 <!-- @note: aware that external stylesheets are very deprecated and NOT supported in Polymer 2+ -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf_viewer.css">
@@ -45,6 +46,10 @@
 				pointer-events: none;
 			}
 
+			d2l-pdf-viewer-progress-bar {
+				--d2l-pdf-viewer-progress-bar-primary-color: var(--d2l-color-celestine);
+			}
+
 			[hidden] {
 				display: none !important;
 			}
@@ -59,7 +64,7 @@
 			fullscreen-available="{{_isFullscreenAvailable}}">
 		</fullscreen-api>
 
-		<d2l-page-load-progress id="loadingBar" color="#006fbf" autohide></d2l-page-load-progress>
+		<d2l-pdf-viewer-progress-bar id="progressBar"></d2l-pdf-viewer-progress-bar>
 		<d2l-pdf-viewer-toolbar
 			id="toolbar"
 			page-number="[[_pageNumber]]"
@@ -129,6 +134,9 @@
 				_pageScale: {
 					type: Number
 				},
+				_pdfName: {
+					type: String
+				},
 				_showToolbar: {
 					type: Boolean,
 					computed: '_computeShowToolbar(_isLoaded, _hasRecentInteraction)'
@@ -162,9 +170,15 @@
 				// Add event listeners before loading document
 				this._addEventListeners();
 
-				pdfjsLib.getDocument({
+				const loadingTask = pdfjsLib.getDocument({
 					url: this.src
-				}).then(pdfDocument => {
+				});
+
+				loadingTask.onProgress = (progressData) => {
+					this.$.progressBar.value = (progressData.loaded / progressData.total) * 100;
+				};
+
+				loadingTask.then(pdfDocument => {
 					let pdfName = '';
 					const parts = this.src.split('/');
 
@@ -179,7 +193,6 @@
 
 					pdfLinkService.setDocument(pdfDocument, null);
 				}).catch(() => {
-					this.$.loadingBar.finish();
 					this.dispatchEvent(new CustomEvent('d2l-pdf-viewer-load-failed', {
 						bubbles: true,
 						composed: true
@@ -198,6 +211,8 @@
 				this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-zoom-out', this._onZoomOutEvent);
 				this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-page-change', this._onPageNumberChangedEvent);
 				this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', this._onFullscreenEvent);
+
+				this.$.progressBar.removeEventListener('d2l-pdf-viewer-progress-bar-animation-complete', this._onProgressAnimationCompleteEvent);
 			},
 			_addEventListeners: function() {
 				this._onMouseEnter = this._onMouseEnter.bind(this); // don't add yet- just bind
@@ -210,6 +225,7 @@
 				this._onZoomOutEvent = this._onZoomOutEvent.bind(this);
 				this._onPageNumberChangedEvent = this._onPageNumberChangedEvent.bind(this);
 				this._onFullscreenEvent = this._onFullscreenEvent.bind(this);
+				this._onProgressAnimationCompleteEvent = this._onProgressAnimationCompleteEvent.bind(this);
 
 				window.addEventListener('resize', this._resize);
 
@@ -222,6 +238,8 @@
 				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-out', this._onZoomOutEvent);
 				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-page-change', this._onPageNumberChangedEvent);
 				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', this._onFullscreenEvent);
+
+				this.$.progressBar.addEventListener('d2l-pdf-viewer-progress-bar-animation-complete', this._onProgressAnimationCompleteEvent);
 			},
 			_resize: function() {
 				if (!this._resizeThrottleHandle) {
@@ -242,12 +260,12 @@
 				}
 			},
 			_srcChanged: function() {
-				this.$.loadingBar.start();
+				this.$.progressBar.value = 0;
+				this.$.progressBar.hidden = false;
 			},
 			_onPagesInitEvent: function() {
 				this._pdfViewer.currentScaleValue = 'page-width';
 				this._pageScale = this._pdfViewer.currentScale;
-				this.$.loadingBar.finish();
 				this._onInteraction();
 				this._isLoaded = true;
 			},
@@ -276,6 +294,9 @@
 				requestAnimationFrame(() => {
 					this._pageScale = this._pdfViewer.currentScale;
 				});
+			},
+			_onProgressAnimationCompleteEvent: function() {
+				this.$.progressBar.hidden = true;
 			},
 			_onPageNumberChangedEvent: function(evt) {
 				var newPage = parseInt(evt.detail.page);

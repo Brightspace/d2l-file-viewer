@@ -20,9 +20,9 @@
 <script>
 	/**
 	* Localizes the d2l-file-viewer components.
-	* @polymerBehavior D2L.PolymerBehaviors.FileViewer.LocalizeBehavior
+	* @polymerBehavior
 	*/
-	window.D2L.PolymerBehaviors.FileViewer.LocalizeBehaviorImpl = {
+	D2L.PolymerBehaviors.FileViewer.LocalizeBehaviorImpl = {
 		properties: {
 			/**
 			* Localization resources.
@@ -35,9 +35,9 @@
 		}
 	};
 
-	/** @polymerBehavior D2L.PolymerBehaviors.FileViewer.LocalizeBehavior */
-	window.D2L.PolymerBehaviors.FileViewer.LocalizeBehavior = [
-		window.D2L.PolymerBehaviors.LocalizeBehavior,
-		window.D2L.PolymerBehaviors.FileViewer.LocalizeBehaviorImpl
+	/** @polymerBehavior */
+	D2L.PolymerBehaviors.FileViewer.LocalizeBehavior = [
+		D2L.PolymerBehaviors.LocalizeBehavior,
+		D2L.PolymerBehaviors.FileViewer.LocalizeBehaviorImpl
 	];
 </script>

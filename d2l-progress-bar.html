@@ -1,5 +1,7 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../d2l-colors/d2l-colors.html">
+<link rel="import" href="../d2l-fastdom-import/fastdom.html">
+
 <!--
 `d2l-progress-bar`
 Polymer-based web component progress bar
@@ -184,7 +186,9 @@ Polymer-based web component progress bar
 
 					this._progress = (now - min) / (max - min) * 100;
 
-					progressBar.style.transform = 'translate(-' + (100 - this._progress) + '%,0)';
+					fastdom.mutate(() => {
+						progressBar.style.transform = 'translate(-' + (100 - this._progress) + '%,0)';
+					});
 
 					this.setAttribute('aria-valuemin', min);
 					this.setAttribute('aria-valuemax', max);

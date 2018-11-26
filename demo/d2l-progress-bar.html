@@ -43,7 +43,7 @@
 					<d2l-progress-bar indeterminate autostart></d2l-progress-bar>
 					<d2l-progress-bar indeterminate autostart class="celestine"></d2l-progress-bar>
 					<d2l-progress-bar indeterminate autostart class="red"></d2l-progress-bar>
-					<button id="finishButton" onclick="forceIndeterminateFinish();">Force Finish</button>
+					<button id="finishButton" onclick="finishIndeterminate();">Force Finish</button>
 				</template>
 			</demo-snippet>
 
@@ -59,11 +59,13 @@
 		<script>
 			'use strict';
 
+			let determinateProgressBar;
+			let indeterminateFinishButton;
+			let indeterminateProgressBars;
 			let progressIntervalHandle;
 
 			/* eslint-disable no-unused-vars */
 			function startDeterminateProgressBar() {
-				const determinateProgressBar = document.querySelector('#determinate');
 				determinateProgressBar.value = 0;
 
 				stopDeterminateProgressBar();
@@ -83,21 +85,15 @@
 			}
 
 			function startIndeterminate() {
-				const indeterminateFinishButton = document.getElementById('finishButton');
-				const indeterminateProgressBars = document.querySelectorAll('[indeterminate]');
-
 				indeterminateProgressBars.forEach(progressBar => {
 					progressBar.start();
 				});
 
 				indeterminateFinishButton.textContent = 'Force Finish';
-				indeterminateFinishButton.onclick = () => forceIndeterminateFinish();
+				indeterminateFinishButton.onclick = () => finishIndeterminate();
 			}
 
-			function forceIndeterminateFinish() {
-				const indeterminateFinishButton = document.getElementById('finishButton');
-				const indeterminateProgressBars = document.querySelectorAll('[indeterminate]');
-
+			function finishIndeterminate() {
 				indeterminateProgressBars[0].addEventListener('d2l-progress-bar-animation-complete', () => {
 					indeterminateFinishButton.textContent = 'Restart';
 					indeterminateFinishButton.onclick = () => startIndeterminate();
@@ -107,6 +103,12 @@
 					progressBar.finish();
 				});
 			}
+
+			document.addEventListener('WebComponentsReady', function() {
+				determinateProgressBar = document.querySelector('#determinate');
+				indeterminateFinishButton = document.getElementById('finishButton');
+				indeterminateProgressBars = document.querySelectorAll('[indeterminate]');
+			});
 		</script>
 	</body>
 </html>

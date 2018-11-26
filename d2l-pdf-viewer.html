@@ -64,7 +64,7 @@
 			fullscreen-available="{{_isFullscreenAvailable}}">
 		</fullscreen-api>
 
-		<d2l-progress-bar id="loadingBar"></d2l-progress-bar>
+		<d2l-progress-bar id="progressBar"></d2l-progress-bar>
 		<d2l-pdf-viewer-toolbar
 			id="toolbar"
 			page-number="[[_pageNumber]]"
@@ -175,7 +175,7 @@
 				});
 
 				loadingTask.onProgress = (progressData) => {
-					this.$.loadingBar.value = (progressData.loaded / progressData.total) * 100;
+					this.$.progressBar.value = (progressData.loaded / progressData.total) * 100;
 				};
 
 				loadingTask.then(pdfDocument => {
@@ -212,7 +212,7 @@
 				this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-page-change', this._onPageNumberChangedEvent);
 				this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', this._onFullscreenEvent);
 
-				this.$.loadingBar.removeEventListener('d2l-progress-bar-animation-complete', this._onProgressAnimationCompleteEvent);
+				this.$.progressBar.removeEventListener('d2l-progress-bar-animation-complete', this._onProgressAnimationCompleteEvent);
 			},
 			_addEventListeners: function() {
 				this._onMouseEnter = this._onMouseEnter.bind(this); // don't add yet- just bind
@@ -239,7 +239,7 @@
 				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-page-change', this._onPageNumberChangedEvent);
 				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', this._onFullscreenEvent);
 
-				this.$.loadingBar.addEventListener('d2l-progress-bar-animation-complete', this._onProgressAnimationCompleteEvent);
+				this.$.progressBar.addEventListener('d2l-progress-bar-animation-complete', this._onProgressAnimationCompleteEvent);
 			},
 			_resize: function() {
 				if (!this._resizeThrottleHandle) {
@@ -260,7 +260,7 @@
 				}
 			},
 			_srcChanged: function() {
-				this.$.loadingBar.value = 0;
+				this.$.progressBar.value = 0;
 			},
 			_onPagesInitEvent: function() {
 				this._pdfViewer.currentScaleValue = 'page-width';
@@ -295,7 +295,7 @@
 				});
 			},
 			_onProgressAnimationCompleteEvent: function() {
-				this.$.loadingBar.hidden = true;
+				this.$.progressBar.hidden = true;
 			},
 			_onPageNumberChangedEvent: function(evt) {
 				var newPage = parseInt(evt.detail.page);

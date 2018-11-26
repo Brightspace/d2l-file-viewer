@@ -18,7 +18,7 @@ Polymer-based web component progress bar for the page load status
 				height: 4px;
 			}
 			.progress-bar {
-				background-color: var(--d2l-progress-bar-primary-color, --d2l-color-corundum);
+				background-color: var(--d2l-progress-bar-primary-color, var(--d2l-color-corundum));
 				transform: translate(-100%, 0);
 				will-change: transform;
 			}
@@ -193,9 +193,10 @@ Polymer-based web component progress bar for the page load status
 
 				_onTransitionEndEvent: function() {
 					if (this._progress === 100) {
+						// Ensure it stays visible for a moment if consumer is hiding on completion
 						setTimeout(function() {
 							this.dispatchEvent(new CustomEvent('d2l-progress-bar-animation-complete'));
-						}.bind(this), 100);
+						}.bind(this), 200);
 					}
 				}
 			});

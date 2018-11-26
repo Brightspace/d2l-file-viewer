@@ -2,7 +2,7 @@
 <link rel="import" href="../d2l-colors/d2l-colors.html">
 <link rel="import" href="../fullscreen-api/fullscreen-api.html">
 <link rel="import" href="d2l-pdf-viewer-toolbar.html">
-<link rel="import" href="d2l-progress-bar.html">
+<link rel="import" href="d2l-pdf-viewer-progress-bar.html">
 
 <!-- @note: aware that external stylesheets are very deprecated and NOT supported in Polymer 2+ -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf_viewer.css">
@@ -46,8 +46,8 @@
 				pointer-events: none;
 			}
 
-			d2l-progress-bar {
-				--d2l-progress-bar-primary-color: var(--d2l-color-celestine);
+			d2l-pdf-viewer-progress-bar {
+				--d2l-pdf-viewer-progress-bar-primary-color: var(--d2l-color-celestine);
 			}
 
 			[hidden] {
@@ -64,7 +64,7 @@
 			fullscreen-available="{{_isFullscreenAvailable}}">
 		</fullscreen-api>
 
-		<d2l-progress-bar id="progressBar"></d2l-progress-bar>
+		<d2l-pdf-viewer-progress-bar id="progressBar"></d2l-pdf-viewer-progress-bar>
 		<d2l-pdf-viewer-toolbar
 			id="toolbar"
 			page-number="[[_pageNumber]]"
@@ -212,7 +212,7 @@
 				this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-page-change', this._onPageNumberChangedEvent);
 				this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', this._onFullscreenEvent);
 
-				this.$.progressBar.removeEventListener('d2l-progress-bar-animation-complete', this._onProgressAnimationCompleteEvent);
+				this.$.progressBar.removeEventListener('d2l-pdf-viewer-progress-bar-animation-complete', this._onProgressAnimationCompleteEvent);
 			},
 			_addEventListeners: function() {
 				this._onMouseEnter = this._onMouseEnter.bind(this); // don't add yet- just bind
@@ -239,7 +239,7 @@
 				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-page-change', this._onPageNumberChangedEvent);
 				this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', this._onFullscreenEvent);
 
-				this.$.progressBar.addEventListener('d2l-progress-bar-animation-complete', this._onProgressAnimationCompleteEvent);
+				this.$.progressBar.addEventListener('d2l-pdf-viewer-progress-bar-animation-complete', this._onProgressAnimationCompleteEvent);
 			},
 			_resize: function() {
 				if (!this._resizeThrottleHandle) {

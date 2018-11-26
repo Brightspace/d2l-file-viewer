@@ -8,7 +8,7 @@
 		<link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
 		<link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
 		<link rel="import" href="../../d2l-colors/d2l-colors.html">
-		<link rel="import" href="../d2l-progress-bar.html">
+		<link rel="import" href="../d2l-pdf-viewer-progress-bar.html">
 		<custom-style>
 			<style is="custom-style" include="demo-pages-shared-styles"></style>
 		</custom-style>
@@ -17,32 +17,32 @@
 				font-size: 20px;
 			}
 
-			d2l-progress-bar {
+			d2l-pdf-viewer-progress-bar {
 				margin: 10px 0 10px 0;
 			}
 		</style>
 	</head>
 	<body unresolved>
 		<div class="vertical-section-container centered d2l-typography">
-			<h3>d2l-progress-bar</h3>
+			<h3>d2l-pdf-viewer-progress-bar</h3>
 
 			<h4>Indeterminate</h4>
 			<demo-snippet>
 				<template>
 					<custom-style>
 						<style is="custom-style">
-							d2l-progress-bar.celestine {
-								--d2l-progress-bar-primary-color: var(--d2l-color-celestine);
+							d2l-pdf-viewer-progress-bar.celestine {
+								--d2l-pdf-viewer-progress-bar-primary-color: var(--d2l-color-celestine);
 							}
 
-							d2l-progress-bar.red {
-								--d2l-progress-bar-primary-color: red;
+							d2l-pdf-viewer-progress-bar.red {
+								--d2l-pdf-viewer-progress-bar-primary-color: red;
 							}
 						</style>
 					</custom-style>
-					<d2l-progress-bar indeterminate autostart></d2l-progress-bar>
-					<d2l-progress-bar indeterminate autostart class="celestine"></d2l-progress-bar>
-					<d2l-progress-bar indeterminate autostart class="red"></d2l-progress-bar>
+					<d2l-pdf-viewer-progress-bar indeterminate autostart></d2l-pdf-viewer-progress-bar>
+					<d2l-pdf-viewer-progress-bar indeterminate autostart class="celestine"></d2l-pdf-viewer-progress-bar>
+					<d2l-pdf-viewer-progress-bar indeterminate autostart class="red"></d2l-pdf-viewer-progress-bar>
 					<button id="finishButton" onclick="finishIndeterminate();">Force Finish</button>
 				</template>
 			</demo-snippet>
@@ -50,7 +50,7 @@
 			<h4>Determinate</h4>
 			<demo-snippet>
 				<template>
-					<d2l-progress-bar id="determinate" max="100"></d2l-progress-bar>
+					<d2l-pdf-viewer-progress-bar id="determinate" max="100"></d2l-pdf-viewer-progress-bar>
 					<button id="startButton" onclick="startDeterminate();">Start</button>
 				</template>
 			</demo-snippet>
@@ -94,7 +94,7 @@
 			}
 
 			function finishIndeterminate() {
-				indeterminateProgressBars[0].addEventListener('d2l-progress-bar-animation-complete', () => {
+				indeterminateProgressBars[0].addEventListener('d2l-pdf-viewer-progress-bar-animation-complete', () => {
 					indeterminateFinishButton.textContent = 'Restart';
 					indeterminateFinishButton.onclick = () => startIndeterminate();
 				});

@@ -3,12 +3,12 @@
 <link rel="import" href="../d2l-fastdom-import/fastdom.html">
 
 <!--
-`d2l-progress-bar`
+`d2l-pdf-viewer-progress-bar`
 Polymer-based web component progress bar
 
-@demo demo/d2l-progress-bar.html
+@demo demo/d2l-pdf-viewer-progress-bar.html
 -->
-<dom-module id="d2l-progress-bar">
+<dom-module id="d2l-pdf-viewer-progress-bar">
 	<template strip-whitespace>
 		<style>
 			:host {
@@ -20,7 +20,7 @@ Polymer-based web component progress bar
 				height: 4px;
 			}
 			.progress-bar {
-				background-color: var(--d2l-progress-bar-primary-color, var(--d2l-color-corundum));
+				background-color: var(--d2l-pdf-viewer-progress-bar-primary-color, var(--d2l-color-corundum));
 				transform: translate(-100%, 0);
 				will-change: transform;
 			}
@@ -49,7 +49,7 @@ Polymer-based web component progress bar
 			});
 
 			Polymer({
-				is: 'd2l-progress-bar',
+				is: 'd2l-pdf-viewer-progress-bar',
 
 				hostAttributes: {
 					role: 'progressbar'
@@ -183,7 +183,7 @@ Polymer-based web component progress bar
 					if (this._progress === 100) {
 						// Ensure it stays visible for a moment in case eg. consumer is hiding on completion
 						setTimeout(function() {
-							this.dispatchEvent(new CustomEvent('d2l-progress-bar-animation-complete'));
+							this.dispatchEvent(new CustomEvent('d2l-pdf-viewer-progress-bar-animation-complete'));
 						}.bind(this), 200);
 					}
 				},

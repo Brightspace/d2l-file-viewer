@@ -2,34 +2,34 @@
 <html>
 	<head>
 		<meta charset="utf-8">
-		<title>d2l-progress-bar tests</title>
+		<title>d2l-pdf-viewer-progress-bar tests</title>
 		<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
 		<script src="../../webcomponentsjs/webcomponents-lite.js"></script>
 		<script src="../../web-component-tester/browser.js"></script>
-		<link rel="import" href="../d2l-progress-bar.html">
+		<link rel="import" href="../d2l-pdf-viewer-progress-bar.html">
 	</head>
 	<body>
 		<test-fixture id="determinate-basic">
 			<template>
-				<d2l-progress-bar></d2l-progress-bar>
+				<d2l-pdf-viewer-progress-bar></d2l-pdf-viewer-progress-bar>
 			</template>
 		</test-fixture>
 
 		<test-fixture id="determinate-configured">
 			<template>
-				<d2l-progress-bar max="20" value="5"></d2l-progress-bar>
+				<d2l-pdf-viewer-progress-bar max="20" value="5"></d2l-pdf-viewer-progress-bar>
 			</template>
 		</test-fixture>
 
 		<test-fixture id="indeterminate-basic">
 			<template>
-				<d2l-progress-bar indeterminate></d2l-progress-bar>
+				<d2l-pdf-viewer-progress-bar indeterminate></d2l-pdf-viewer-progress-bar>
 			</template>
 		</test-fixture>
 
 		<test-fixture id="indeterminate-autostart">
 			<template>
-				<d2l-progress-bar indeterminate autostart></d2l-progress-bar>
+				<d2l-pdf-viewer-progress-bar indeterminate autostart></d2l-pdf-viewer-progress-bar>
 			</template>
 		</test-fixture>
 
@@ -42,7 +42,7 @@
 				});
 
 				it('should instantiate the element', function() {
-					expect(elem.is).to.equal('d2l-progress-bar');
+					expect(elem.is).to.equal('d2l-pdf-viewer-progress-bar');
 				});
 
 				it('should have the role "progressbar"', function() {

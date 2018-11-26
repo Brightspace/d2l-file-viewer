@@ -51,7 +51,7 @@
 			<demo-snippet>
 				<template>
 					<d2l-progress-bar id="determinate" max="100"></d2l-progress-bar>
-					<button id="startButton" onclick="startDeterminateProgressBar();">Start</button>
+					<button id="startButton" onclick="startDeterminate();">Start</button>
 				</template>
 			</demo-snippet>
 		</div>
@@ -65,21 +65,21 @@
 			let progressIntervalHandle;
 
 			/* eslint-disable no-unused-vars */
-			function startDeterminateProgressBar() {
+			function startDeterminate() {
 				determinateProgressBar.value = 0;
 
-				stopDeterminateProgressBar();
+				stopDeterminate();
 
 				progressIntervalHandle = setInterval(() => {
 					determinateProgressBar.value = Math.min(determinateProgressBar.max, determinateProgressBar.value + Math.random() * 10 + 5);
 
 					if (determinateProgressBar.value >= determinateProgressBar.max) {
-						stopDeterminateProgressBar();
+						stopDeterminate();
 					}
 				}, 500);
 			}
 
-			function stopDeterminateProgressBar() {
+			function stopDeterminate() {
 				clearInterval(progressIntervalHandle);
 				progressIntervalHandle = null;
 			}
@@ -105,7 +105,7 @@
 			}
 
 			document.addEventListener('WebComponentsReady', function() {
-				determinateProgressBar = document.querySelector('#determinate');
+				determinateProgressBar = document.getElementById('determinate');
 				indeterminateFinishButton = document.getElementById('finishButton');
 				indeterminateProgressBars = document.querySelectorAll('[indeterminate]');
 			});

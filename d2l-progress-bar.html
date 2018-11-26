@@ -102,10 +102,6 @@ Polymer-based web component progress bar
 					this._onTransitionEndEvent = this._onTransitionEndEvent.bind(this);
 
 					this.$.progressBar.addEventListener('transitionend', this._onTransitionEndEvent);
-
-					if (this.autostart && this.indeterminate) {
-						this.start();
-					}
 				},
 
 				/**
@@ -123,7 +119,6 @@ Polymer-based web component progress bar
 							this._setIndeterminateState(indeterminateStates.IN_PROGRESS);
 						}
 					}.bind(this), 100);
-
 				},
 
 				/**
@@ -154,9 +149,7 @@ Polymer-based web component progress bar
 				},
 
 				_onConfigChanged: function(indeterminate, autostart) {
-					const progressBar = this.$$('.progress-bar');
-
-					this.toggleClass('determinate', !indeterminate, progressBar);
+					this.toggleClass('determinate', !indeterminate, this.$.progressBar);
 
 					if (indeterminate) {
 						this.removeAttribute('aria-valuemax');
@@ -173,13 +166,12 @@ Polymer-based web component progress bar
 						return;
 					}
 
-					const progressBar = this.$$('.progress-bar');
 					value = Math.min(value, max);
 
 					this._progress = (value / max) * 100;
 
 					fastdom.mutate(() => {
-						progressBar.style.transform = 'translate(-' + (100 - this._progress) + '%,0)';
+						this.$.progressBar.style.transform = 'translate(-' + (100 - this._progress) + '%,0)';
 					});
 
 					this.setAttribute('aria-valuemax', max);
@@ -188,7 +180,7 @@ Polymer-based web component progress bar
 
 				_onTransitionEndEvent: function() {
 					if (this._progress === 100) {
-						// Ensure it stays visible for a moment if consumer is hiding on completion
+						// Ensure it stays visible for a moment in case eg. consumer is hiding on completion
 						setTimeout(function() {
 							this.dispatchEvent(new CustomEvent('d2l-progress-bar-animation-complete'));
 						}.bind(this), 200);

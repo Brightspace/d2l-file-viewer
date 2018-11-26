@@ -175,7 +175,7 @@
 				});
 
 				loadingTask.onProgress = (progressData) => {
-					this.$.loadingBar.now = (progressData.loaded / progressData.total) * 100;
+					this.$.loadingBar.value = (progressData.loaded / progressData.total) * 100;
 				};
 
 				loadingTask.then(pdfDocument => {
@@ -260,7 +260,7 @@
 				}
 			},
 			_srcChanged: function() {
-				this.$.loadingBar.now = 0;
+				this.$.loadingBar.value = 0;
 			},
 			_onPagesInitEvent: function() {
 				this._pdfViewer.currentScaleValue = 'page-width';

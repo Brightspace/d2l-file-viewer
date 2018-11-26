@@ -75,23 +75,16 @@ Polymer-based web component progress bar
 						value: false
 					},
 					/**
-					* Value which indicates the action is 0% complete. (determinate only)
-					*/
-					min: {
-						type: Number,
-						value: 0
-					},
-					/**
 					* Value which indicates the action is 100% complete. (determinate only)
 					*/
 					max: {
 						type: Number,
-						value: 100
+						value: 1
 					},
 					/**
 					* The current progress of the action. (determinate only)
 					*/
-					now: {
+					value: {
 						type: Number,
 						value: 0
 					}
@@ -99,7 +92,7 @@ Polymer-based web component progress bar
 
 				observers: [
 					'_onConfigChanged(indeterminate, autostart)',
-					'_onProgressChanged(now, min, max)'
+					'_onProgressChanged(value, max)'
 				],
 
 				ready: function() {
@@ -166,7 +159,6 @@ Polymer-based web component progress bar
 					this.toggleClass('determinate', !indeterminate, progressBar);
 
 					if (indeterminate) {
-						this.removeAttribute('aria-valuemin');
 						this.removeAttribute('aria-valuemax');
 						this.removeAttribute('aria-valuenow');
 
@@ -176,23 +168,22 @@ Polymer-based web component progress bar
 					}
 				},
 
-				_onProgressChanged: function(now, min, max) {
+				_onProgressChanged: function(value, max) {
 					if (this.indeterminate) {
 						return;
 					}
 
 					const progressBar = this.$$('.progress-bar');
-					now = Math.max(Math.min(now, max), min);
+					value = Math.min(value, max);
 
-					this._progress = (now - min) / (max - min) * 100;
+					this._progress = (value / max) * 100;
 
 					fastdom.mutate(() => {
 						progressBar.style.transform = 'translate(-' + (100 - this._progress) + '%,0)';
 					});
 
-					this.setAttribute('aria-valuemin', min);
 					this.setAttribute('aria-valuemax', max);
-					this.setAttribute('aria-valuenow', now);
+					this.setAttribute('aria-valuenow', value);
 				},
 
 				_onTransitionEndEvent: function() {

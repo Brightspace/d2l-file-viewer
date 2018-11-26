@@ -17,7 +17,7 @@
 
 		<test-fixture id="determinate-configured">
 			<template>
-				<d2l-progress-bar min="1" max="20" now="5"></d2l-progress-bar>
+				<d2l-progress-bar max="20" value="5"></d2l-progress-bar>
 			</template>
 		</test-fixture>
 
@@ -27,25 +27,14 @@
 			</template>
 		</test-fixture>
 
-		<test-fixture id="color-set">
-			<template>
-				<style is="custom-style">
-					d2l-progress-bar {
-						--d2l-progress-bar-primary-color: #ff0000;
-					}
-				</style>
-				<d2l-progress-bar></d2l-progress-bar>
-			</template>
-		</test-fixture>
-
-		<test-fixture id="autostart">
+		<test-fixture id="indeterminate-autostart">
 			<template>
 				<d2l-progress-bar indeterminate autostart></d2l-progress-bar>
 			</template>
 		</test-fixture>
 
 		<script>
-			var elem;
+			let elem;
 
 			describe('smoke tests', function() {
 				beforeEach(function() {
@@ -79,7 +68,6 @@
 					});
 
 					it('should reflect "autostart" property change to attribute', function() {
-						elem = fixture('indeterminate-basic');
 						elem.autostart = true;
 						expect(elem.hasAttribute('autostart')).to.be.true;
 					});
@@ -118,7 +106,7 @@
 
 				describe('set', function() {
 					beforeEach(function() {
-						elem = fixture('autostart');
+						elem = fixture('indeterminate-autostart');
 					});
 
 					it('should start on its own after 100ms', function(done) {
@@ -164,28 +152,14 @@
 						elem = fixture('determinate-basic');
 					});
 
-					it('should have a default "min" of 0', function() {
-						expect(elem.min).to.equal(0);
-						expect(elem.getAttribute('aria-valuemin')).to.equal('0');
+					it('should have a default "max" of 1', function() {
+						expect(elem.max).to.equal(1);
+						expect(elem.getAttribute('aria-valuemax')).to.equal('1');
 					});
 
-					it('should have a default "max" of 100', function() {
-						expect(elem.max).to.equal(100);
-						expect(elem.getAttribute('aria-valuemax')).to.equal('100');
-					});
-
-					it('should have a default "now" of 0', function() {
-						expect(elem.now).to.equal(0);
+					it('should have a default "value" of 0', function() {
+						expect(elem.value).to.equal(0);
 						expect(elem.getAttribute('aria-valuenow')).to.equal('0');
-					});
-
-					it('should reflect "min" as "aria-valuemin" when set by property', function(done) {
-						elem.min = 1;
-
-						setTimeout(() => {
-							expect(elem.getAttribute('aria-valuemin')).to.equal('1');
-							done();
-						});
 					});
 
 					it('should reflect "max" as "aria-valuemax" when set by property', function(done) {
@@ -197,26 +171,19 @@
 						});
 					});
 
-					it('should reflect "now" as "aria-valuenow" when set by property', function(done) {
-						elem.now = 50;
+					it('should reflect "value" as "aria-valuenow" when set by property', function(done) {
+						elem.value = 0.5;
 
 						setTimeout(() => {
-							expect(elem.getAttribute('aria-valuenow')).to.equal('50');
+							expect(elem.getAttribute('aria-valuenow')).to.equal('0.5');
 							done();
 						});
 					});
 
-					it('should clamp "aria-valuenow" if less than "min"', function() {
-						elem.min = 1;
-						elem.now = 0;
+					it('should clamp "aria-valuenow" if greater than "max"', function() {
+						elem.value = 1000;
 
 						expect(elem.getAttribute('aria-valuenow')).to.equal('1');
-					});
-
-					it('should clamp "aria-valuenow" if greater than "max"', function() {
-						elem.now = 1000;
-
-						expect(elem.getAttribute('aria-valuenow')).to.equal('100');
 					});
 				});
 
@@ -225,15 +192,11 @@
 						elem = fixture('determinate-configured');
 					});
 
-					it('should reflect "min" as "aria-valuemin" when set by attribute', function() {
-						expect(elem.getAttribute('aria-valuemin')).to.equal('1');
-					});
-
 					it('should reflect "max" as "aria-valuemax" when set by attribute', function() {
 						expect(elem.getAttribute('aria-valuemax')).to.equal('20');
 					});
 
-					it('should reflect "now" as "aria-valuenow" when set by attribute', function() {
+					it('should reflect "value" as "aria-valuenow" when set by attribute', function() {
 						expect(elem.getAttribute('aria-valuenow')).to.equal('5');
 					});
 				});

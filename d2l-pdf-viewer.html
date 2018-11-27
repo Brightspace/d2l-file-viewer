@@ -178,7 +178,7 @@
 					this.$.progressBar.value = (progressData.loaded / progressData.total) * 100;
 				};
 
-				loadingTask.then(pdfDocument => {
+				loadingTask.promise.then(pdfDocument => {
 					let pdfName = '';
 					const parts = this.src.split('/');
 

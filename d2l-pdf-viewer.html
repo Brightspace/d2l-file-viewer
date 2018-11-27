@@ -256,11 +256,11 @@
 					progressBar.indeterminate = false;
 					progressBar.hidden = false;
 
-					this._loadingTask = pdfjsLib.getDocument({
+					const loadingTask = this._loadingTask = pdfjsLib.getDocument({
 						url: src
 					});
 
-					this._loadingTask.onProgress = (progressData) => {
+					loadingTask.onProgress = (progressData) => {
 						if (progressData.total && !progressBar.indeterminate) {
 							progressBar.value = progressData.loaded / progressData.total;
 						} else if (!progressBar.indeterminate) {
@@ -268,13 +268,18 @@
 						}
 					};
 
-					this._loadingTask.then(pdfDocument => {
+					loadingTask.then(pdfDocument => {
 						this._pdfViewer.setDocument(pdfDocument);
 						this._pagesCount = pdfDocument.numPages;
 						this._pageNumber = this._pdfViewer.currentPageNumber;
 
 						this._pdfLinkService.setDocument(pdfDocument, null);
 					}).catch(() => {
+						if (loadingTask.destroyed) {
+							// the load was canceled because the src changed
+							return;
+						}
+
 						this.dispatchEvent(new CustomEvent('d2l-pdf-viewer-load-failed', {
 							bubbles: true,
 							composed: true

@@ -1,0 +1,76 @@
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>d2l pdf viewer toolbar basic tests</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+		<script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+		<script src="../../web-component-tester/browser.js"></script>
+		<link rel="import" href="../d2l-pdf-viewer.html">
+	</head>
+	<body>
+		<test-fixture id="basic">
+			<template>
+				<d2l-pdf-viewer></d2l-pdf-viewer>
+			</template>
+		</test-fixture>
+		<script>
+			describe('<d2l-pdf-viewer>', function() {
+				let pdfViewer;
+				let pdfJsReal;
+
+				const PdfJsMock = function() {};
+
+				PdfJsMock.prototype = {
+					getDocument: function() {
+						return new Promise(() => {});
+					}
+				};
+
+				describe('loading', function() {
+					beforeEach(function() {
+						pdfViewer = fixture('basic');
+
+						pdfJsReal = pdfJsReal || window.pdfjsLib;
+
+						window.pdfjsLib = new PdfJsMock();
+					});
+
+					afterEach(function() {
+						window.pdfjsLib = pdfJsReal;
+					});
+
+					it('should report the determinate progress when available', function(done) {
+						pdfViewer.src = 'https://some.dummy.url/and-a-fake.pdf';
+
+						setTimeout(() => {
+							[0, 250, 500, 750, 1000].forEach(val => {
+								pdfViewer._loadingTask.onProgress({
+									loaded: val,
+									total: 1000
+								});
+
+								expect(pdfViewer.$.progressBar.indeterminate).to.be.false;
+								expect(pdfViewer.$.progressBar.value).to.equal(val / 1000);
+							});
+							done();
+						});
+					});
+
+					it('should use an indeterminate loading bar when total progress not available', function(done) {
+						pdfViewer.src = 'https://some.dummy.url/and-a-fake.pdf';
+
+						setTimeout(() => {
+							pdfViewer._loadingTask.onProgress({
+								loaded: 200,
+								total: undefined
+							});
+
+							expect(pdfViewer.$.progressBar.indeterminate).to.be.true;
+							done();
+						});
+					});
+				});
+			});
+		</script>
+	</body>
+</html>

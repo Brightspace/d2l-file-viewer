@@ -156,48 +156,19 @@
 					'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf.worker.min.js';
 
 				// (Optionally) enable hyperlinks within PDF files.
-				var pdfLinkService = new pdfjsViewer.PDFLinkService({
+				this._pdfLinkService = new pdfjsViewer.PDFLinkService({
 					externalLinkTarget: pdfjsLib.LinkTarget.BLANK
 				});
 
 				this._pdfViewer = new pdfjsViewer.PDFViewer({
 					container: this.$.viewerContainer,
-					linkService: pdfLinkService
+					linkService: this._pdfLinkService
 				});
 
-				pdfLinkService.setViewer(this._pdfViewer);
+				this._pdfLinkService.setViewer(this._pdfViewer);
 
 				// Add event listeners before loading document
 				this._addEventListeners();
-
-				const loadingTask = pdfjsLib.getDocument({
-					url: this.src
-				});
-
-				loadingTask.onProgress = (progressData) => {
-					this.$.progressBar.value = (progressData.loaded / progressData.total) * 100;
-				};
-
-				loadingTask.then(pdfDocument => {
-					let pdfName = '';
-					const parts = this.src.split('/');
-
-					if (parts.length > 0) {
-						pdfName = parts[parts.length - 1];
-					}
-
-					this._pdfName = pdfName;
-					this._pdfViewer.setDocument(pdfDocument);
-					this._pagesCount = pdfDocument.numPages;
-					this._pageNumber = this._pdfViewer.currentPageNumber;
-
-					pdfLinkService.setDocument(pdfDocument, null);
-				}).catch(() => {
-					this.dispatchEvent(new CustomEvent('d2l-pdf-viewer-load-failed', {
-						bubbles: true,
-						composed: true
-					}));
-				});
 			},
 			detached: function() {
 				window.removeEventListener('resize', this._resize);
@@ -259,15 +230,67 @@
 					}, 100);
 				}
 			},
-			_srcChanged: function() {
-				this.$.progressBar.value = 0;
-				this.$.progressBar.hidden = false;
+			_srcChanged: function(src) {
+				const progressBar = this.$.progressBar;
+				let destroyLoadingTask = Promise.resolve();
+				let pdfName = '';
+
+				if (this._loadingTask) {
+					destroyLoadingTask = this._loadingTask.destroy();
+					this._loadingTask = null;
+				}
+
+				if (!src) {
+					return;
+				}
+
+				const parts = src.split('/');
+
+				if (parts.length > 0) {
+					pdfName = parts[parts.length - 1];
+				}
+
+				this._pdfName = pdfName;
+
+				destroyLoadingTask.then(() => {
+					progressBar.indeterminate = false;
+					progressBar.hidden = false;
+
+					this._loadingTask = pdfjsLib.getDocument({
+						url: src
+					});
+
+					this._loadingTask.onProgress = (progressData) => {
+						if (progressData.total && !progressBar.indeterminate) {
+							progressBar.value = progressData.loaded / progressData.total;
+						} else if (!progressBar.indeterminate) {
+							progressBar.indeterminate = true;
+						}
+					};
+
+					this._loadingTask.then(pdfDocument => {
+						this._pdfViewer.setDocument(pdfDocument);
+						this._pagesCount = pdfDocument.numPages;
+						this._pageNumber = this._pdfViewer.currentPageNumber;
+
+						this._pdfLinkService.setDocument(pdfDocument, null);
+					}).catch(() => {
+						this.dispatchEvent(new CustomEvent('d2l-pdf-viewer-load-failed', {
+							bubbles: true,
+							composed: true
+						}));
+					});
+				});
 			},
 			_onPagesInitEvent: function() {
 				this._pdfViewer.currentScaleValue = 'page-width';
 				this._pageScale = this._pdfViewer.currentScale;
 				this._onInteraction();
 				this._isLoaded = true;
+
+				if (this.$.progressBar.indeterminate) {
+					this.$.progressBar.finish();
+				}
 			},
 			_onPageChangeEvent: function(evt) {
 				this._pageNumber = evt.pageNumber;

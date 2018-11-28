@@ -234,13 +234,12 @@
 				}
 			},
 			_srcChanged: function(isAttached, src) {
-				if (!isAttached) {
+				if (!isAttached || !src) {
 					return;
 				}
 
 				const progressBar = this.$.progressBar;
 				let destroyLoadingTask = Promise.resolve();
-				let pdfName = '';
 
 				this._resetPdfData();
 
@@ -252,17 +251,7 @@
 					this._loadingTask = null;
 				}
 
-				if (!src) {
-					return;
-				}
-
-				const parts = src.split('/');
-
-				if (parts.length > 0) {
-					pdfName = parts[parts.length - 1];
-				}
-
-				this._pdfName = pdfName;
+				this._setPdfNameFromUrl(src);
 
 				destroyLoadingTask.then(() => {
 					const loadingTask = this._loadingTask = pdfjsLib.getDocument({
@@ -416,6 +405,21 @@
 				this._pagesCount = 0;
 				this._isLoaded = false;
 				this._pdfName = '';
+			},
+			_setPdfNameFromUrl: function(src) {
+				if (!src) {
+					this._pdfName = '';
+					return;
+				}
+
+				const parts = src.split('/');
+				let pdfName = '';
+
+				if (parts.length > 0) {
+					pdfName = parts[parts.length - 1];
+				}
+
+				this._pdfName = pdfName;
 			}
 		});
 	</script>

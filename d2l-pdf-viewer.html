@@ -106,8 +106,7 @@
 					value: 5
 				},
 				src: {
-					type: String,
-					observer: '_srcChanged'
+					type: String
 				},
 				_isFullscreen: {
 					type: Boolean,
@@ -135,7 +134,8 @@
 					type: Number
 				},
 				_pdfName: {
-					type: String
+					type: String,
+					value: ''
 				},
 				_showToolbar: {
 					type: Boolean,
@@ -151,6 +151,9 @@
 				'focusin': '_onInteraction',
 				'focusout': '_onFocusOut'
 			},
+			observers: [
+				'_srcChanged(isAttached, src)'
+			],
 			ready: function() {
 				pdfjsLib.GlobalWorkerOptions.workerSrc =
 					'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf.worker.min.js';
@@ -230,10 +233,19 @@
 					}, 100);
 				}
 			},
-			_srcChanged: function(src) {
+			_srcChanged: function(isAttached, src) {
+				if (!isAttached) {
+					return;
+				}
+
 				const progressBar = this.$.progressBar;
 				let destroyLoadingTask = Promise.resolve();
 				let pdfName = '';
+
+				this._resetPdfData();
+
+				progressBar.indeterminate = false;
+				progressBar.value = 0;
 
 				if (this._loadingTask) {
 					destroyLoadingTask = this._loadingTask.destroy();
@@ -253,28 +265,35 @@
 				this._pdfName = pdfName;
 
 				destroyLoadingTask.then(() => {
-					progressBar.indeterminate = false;
-					progressBar.hidden = false;
-
 					const loadingTask = this._loadingTask = pdfjsLib.getDocument({
 						url: src
 					});
 
+					progressBar.hidden = false;
+
 					loadingTask.onProgress = (progressData) => {
-						if (progressData.total && !progressBar.indeterminate) {
-							progressBar.value = progressData.loaded / progressData.total;
-						} else if (!progressBar.indeterminate) {
-							progressBar.indeterminate = true;
+						if (progressBar.indeterminate) {
+							return;
 						}
+
+						if (!progressData.total) {
+							progressBar.indeterminate = true;
+							progressBar.start();
+							return;
+						}
+
+						progressBar.value = progressData.loaded / progressData.total;
 					};
 
-					loadingTask.then(pdfDocument => {
+					loadingTask.promise.then(pdfDocument => {
 						this._pdfViewer.setDocument(pdfDocument);
 						this._pagesCount = pdfDocument.numPages;
 						this._pageNumber = this._pdfViewer.currentPageNumber;
 
 						this._pdfLinkService.setDocument(pdfDocument, null);
 					}).catch(() => {
+						progressBar.hidden = true;
+
 						if (loadingTask.destroyed) {
 							// the load was canceled because the src changed
 							return;
@@ -389,6 +408,14 @@
 			},
 			_computeShowToolbar: function(isLoaded, hasRecentInteraction) {
 				return !!isLoaded && !!hasRecentInteraction;
+			},
+			_resetPdfData: function() {
+				this._pdfViewer.setDocument(null);
+				this._pdfLinkService.setDocument(null);
+				this._pageNumber = 0;
+				this._pagesCount = 0;
+				this._isLoaded = false;
+				this._pdfName = '';
 			}
 		});
 	</script>

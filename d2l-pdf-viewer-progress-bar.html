@@ -181,7 +181,7 @@ Polymer-based web component progress bar
 
 				_onTransitionEndEvent: function() {
 					if (this._progress === 100) {
-						// Ensure it stays visible for a moment in case eg. consumer is hiding on completion
+						// Delay for a moment in case eg. consumer is using event to hide on completion
 						setTimeout(function() {
 							this.dispatchEvent(new CustomEvent('d2l-pdf-viewer-progress-bar-animation-complete'));
 						}.bind(this), 200);

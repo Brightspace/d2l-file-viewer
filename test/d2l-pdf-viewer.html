@@ -97,7 +97,12 @@
 							});
 
 							expect(pdfViewer.$.progressBar.indeterminate).to.be.true;
-							done();
+							expect(pdfViewer.$.progressBar._indeterminateState).to.equal(0); // RESET
+
+							setTimeout(() => {
+								expect(pdfViewer.$.progressBar._indeterminateState).to.equal(1); // IN_PROGRESS
+								done();
+							}, 100);
 						});
 					});
 				});

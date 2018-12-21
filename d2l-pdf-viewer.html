@@ -106,8 +106,7 @@
 					value: 5
 				},
 				src: {
-					type: String,
-					observer: '_srcChanged'
+					type: String
 				},
 				_isFullscreen: {
 					type: Boolean,
@@ -135,7 +134,8 @@
 					type: Number
 				},
 				_pdfName: {
-					type: String
+					type: String,
+					value: ''
 				},
 				_showToolbar: {
 					type: Boolean,
@@ -151,53 +151,27 @@
 				'focusin': '_onInteraction',
 				'focusout': '_onFocusOut'
 			},
+			observers: [
+				'_srcChanged(isAttached, src)'
+			],
 			ready: function() {
 				pdfjsLib.GlobalWorkerOptions.workerSrc =
 					'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf.worker.min.js';
 
 				// (Optionally) enable hyperlinks within PDF files.
-				var pdfLinkService = new pdfjsViewer.PDFLinkService({
+				this._pdfLinkService = new pdfjsViewer.PDFLinkService({
 					externalLinkTarget: pdfjsLib.LinkTarget.BLANK
 				});
 
 				this._pdfViewer = new pdfjsViewer.PDFViewer({
 					container: this.$.viewerContainer,
-					linkService: pdfLinkService
+					linkService: this._pdfLinkService
 				});
 
-				pdfLinkService.setViewer(this._pdfViewer);
+				this._pdfLinkService.setViewer(this._pdfViewer);
 
 				// Add event listeners before loading document
 				this._addEventListeners();
-
-				const loadingTask = pdfjsLib.getDocument({
-					url: this.src
-				});
-
-				loadingTask.onProgress = (progressData) => {
-					this.$.progressBar.value = (progressData.loaded / progressData.total) * 100;
-				};
-
-				loadingTask.promise.then(pdfDocument => {
-					let pdfName = '';
-					const parts = this.src.split('/');
-
-					if (parts.length > 0) {
-						pdfName = parts[parts.length - 1];
-					}
-
-					this._pdfName = pdfName;
-					this._pdfViewer.setDocument(pdfDocument);
-					this._pagesCount = pdfDocument.numPages;
-					this._pageNumber = this._pdfViewer.currentPageNumber;
-
-					pdfLinkService.setDocument(pdfDocument, null);
-				}).catch(() => {
-					this.dispatchEvent(new CustomEvent('d2l-pdf-viewer-load-failed', {
-						bubbles: true,
-						composed: true
-					}));
-				});
 			},
 			detached: function() {
 				window.removeEventListener('resize', this._resize);
@@ -259,15 +233,77 @@
 					}, 100);
 				}
 			},
-			_srcChanged: function() {
-				this.$.progressBar.value = 0;
-				this.$.progressBar.hidden = false;
+			_srcChanged: function(isAttached, src) {
+				if (!isAttached || !src) {
+					return;
+				}
+
+				const progressBar = this.$.progressBar;
+				let destroyLoadingTask = Promise.resolve();
+
+				this._resetPdfData();
+
+				progressBar.indeterminate = false;
+				progressBar.value = 0;
+
+				if (this._loadingTask) {
+					destroyLoadingTask = this._loadingTask.destroy();
+					this._loadingTask = null;
+				}
+
+				this._setPdfNameFromUrl(src);
+
+				destroyLoadingTask.then(() => {
+					const loadingTask = this._loadingTask = pdfjsLib.getDocument({
+						url: src
+					});
+
+					progressBar.hidden = false;
+
+					loadingTask.onProgress = (progressData) => {
+						if (progressBar.indeterminate) {
+							return;
+						}
+
+						if (!progressData.total) {
+							progressBar.indeterminate = true;
+							progressBar.start();
+							return;
+						}
+
+						progressBar.value = progressData.loaded / progressData.total;
+					};
+
+					loadingTask.promise.then(pdfDocument => {
+						this._pdfViewer.setDocument(pdfDocument);
+						this._pagesCount = pdfDocument.numPages;
+						this._pageNumber = this._pdfViewer.currentPageNumber;
+
+						this._pdfLinkService.setDocument(pdfDocument, null);
+					}).catch(() => {
+						progressBar.hidden = true;
+
+						if (loadingTask.destroyed) {
+							// the load was canceled because the src changed
+							return;
+						}
+
+						this.dispatchEvent(new CustomEvent('d2l-pdf-viewer-load-failed', {
+							bubbles: true,
+							composed: true
+						}));
+					});
+				});
 			},
 			_onPagesInitEvent: function() {
 				this._pdfViewer.currentScaleValue = 'page-width';
 				this._pageScale = this._pdfViewer.currentScale;
 				this._onInteraction();
 				this._isLoaded = true;
+
+				if (this.$.progressBar.indeterminate) {
+					this.$.progressBar.finish();
+				}
 			},
 			_onPageChangeEvent: function(evt) {
 				this._pageNumber = evt.pageNumber;
@@ -361,6 +397,29 @@
 			},
 			_computeShowToolbar: function(isLoaded, hasRecentInteraction) {
 				return !!isLoaded && !!hasRecentInteraction;
+			},
+			_resetPdfData: function() {
+				this._pdfViewer.setDocument(null);
+				this._pdfLinkService.setDocument(null);
+				this._pageNumber = 0;
+				this._pagesCount = 0;
+				this._isLoaded = false;
+				this._pdfName = '';
+			},
+			_setPdfNameFromUrl: function(src) {
+				if (!src) {
+					this._pdfName = '';
+					return;
+				}
+
+				const parts = src.split('/');
+				let pdfName = '';
+
+				if (parts.length > 0) {
+					pdfName = parts[parts.length - 1];
+				}
+
+				this._pdfName = pdfName;
 			}
 		});
 	</script>

@@ -1,0 +1,112 @@
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>d2l pdf viewer toolbar basic tests</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+		<script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+		<script src="../../web-component-tester/browser.js"></script>
+		<link rel="import" href="../d2l-pdf-viewer.html">
+	</head>
+	<body>
+		<test-fixture id="basic">
+			<template>
+				<d2l-pdf-viewer></d2l-pdf-viewer>
+			</template>
+		</test-fixture>
+		<script>
+			class PdfjsMock {
+				constructor(config = {}) {
+					this.__config = config;
+				}
+
+				getDocument(opts) {
+					return this.__config.loadingTasks[opts.url];
+				}
+			}
+
+			class LoadingTaskMock {
+				constructor(config = {}) {
+					this.__config = config;
+					this.__config.promise = this.__config.promise || new Promise(() => {});
+				}
+
+				get promise() {
+					return this.__config.promise;
+				}
+
+				destroy() {
+					return Promise.reject('Error: Worker was destroyed');
+				}
+			}
+
+			describe('<d2l-pdf-viewer>', function() {
+				let pdfViewer;
+				let pdfJsReal;
+
+				describe('loading', function() {
+					beforeEach(function() {
+						pdfViewer = fixture('basic');
+
+						pdfJsReal = pdfJsReal || window.pdfjsLib;
+					});
+
+					afterEach(function() {
+						window.pdfjsLib = pdfJsReal;
+					});
+
+					it('should report the determinate progress when available', function(done) {
+						const loadingTaskMock = new LoadingTaskMock();
+
+						window.pdfjsLib = new PdfjsMock({
+							loadingTasks: {
+								'https://some.dummy.url/and-a-fake.pdf': loadingTaskMock
+							}
+						});
+
+						pdfViewer.src = 'https://some.dummy.url/and-a-fake.pdf';
+
+						setTimeout(() => {
+							[0, 250, 500, 750, 1000].forEach(val => {
+								loadingTaskMock.onProgress({
+									loaded: val,
+									total: 1000
+								});
+
+								expect(pdfViewer.$.progressBar.indeterminate).to.be.false;
+								expect(pdfViewer.$.progressBar.value).to.equal(val / 1000);
+							});
+							done();
+						});
+					});
+
+					it('should use an indeterminate loading bar when total progress not available', function(done) {
+						const loadingTaskMock = new LoadingTaskMock();
+
+						window.pdfjsLib = new PdfjsMock({
+							loadingTasks: {
+								'https://some.dummy.url/and-a-fake.pdf': loadingTaskMock
+							}
+						});
+
+						pdfViewer.src = 'https://some.dummy.url/and-a-fake.pdf';
+
+						setTimeout(() => {
+							loadingTaskMock.onProgress({
+								loaded: 200,
+								total: undefined
+							});
+
+							expect(pdfViewer.$.progressBar.indeterminate).to.be.true;
+							expect(pdfViewer.$.progressBar._indeterminateState).to.equal(0); // RESET
+
+							setTimeout(() => {
+								expect(pdfViewer.$.progressBar._indeterminateState).to.equal(1); // IN_PROGRESS
+								done();
+							}, 100);
+						});
+					});
+				});
+			});
+		</script>
+	</body>
+</html>

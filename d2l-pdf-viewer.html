@@ -4,8 +4,8 @@
 <link rel="import" href="d2l-pdf-viewer-toolbar.html">
 <link rel="import" href="d2l-pdf-viewer-progress-bar.html">
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf_viewer.js"></script>
+<script src="../pdfjs-dist/build/pdf.js"></script>
+<script src="../pdfjs-dist/web/pdf_viewer.js"></script>
 
 <dom-module id="d2l-pdf-viewer">
 	<template strip-whitespace>
@@ -491,6 +491,12 @@
 					type: Number,
 					value: 5
 				},
+				pdfJsWorkerSrc: {
+					type: String,
+					value: function() {
+						return this.resolveUrl('../pdfjs-dist/build/pdf.worker.min.js');
+					},
+				},
 				src: {
 					type: String
 				},
@@ -545,8 +551,7 @@
 				// under Shady DOM
 				this.scopeSubtree(this.$.viewerContainer, true);
 
-				pdfjsLib.GlobalWorkerOptions.workerSrc =
-					'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf.worker.min.js';
+				pdfjsLib.GlobalWorkerOptions.workerSrc = this.pdfJsWorkerSrc;
 
 				// (Optionally) enable hyperlinks within PDF files.
 				this._pdfLinkService = new pdfjsViewer.PDFLinkService({

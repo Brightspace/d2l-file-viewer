@@ -541,6 +541,10 @@
 				'_srcChanged(isAttached, src)'
 			],
 			ready: function() {
+				// Ensure that style scoping is applied to elements added by PDF.js
+				// under Shady DOM
+				this.scopeSubtree(this.$.viewerContainer, true);
+
 				pdfjsLib.GlobalWorkerOptions.workerSrc =
 					'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf.worker.min.js';
 

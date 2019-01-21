@@ -492,10 +492,7 @@
 					value: 5
 				},
 				pdfJsWorkerSrc: {
-					type: String,
-					value: function() {
-						return this.resolveUrl('../pdfjs-dist/build/pdf.worker.min.js');
-					},
+					type: String
 				},
 				src: {
 					type: String
@@ -551,7 +548,9 @@
 				// under Shady DOM
 				this.scopeSubtree(this.$.viewerContainer, true);
 
-				pdfjsLib.GlobalWorkerOptions.workerSrc = this.pdfJsWorkerSrc;
+				pdfjsLib.GlobalWorkerOptions.workerSrc =
+					this.pdfJsWorkerSrc ||
+					this.importPath + '../pdfjs-dist/build/pdf.worker.min.js';
 
 				// (Optionally) enable hyperlinks within PDF files.
 				this._pdfLinkService = new pdfjsViewer.PDFLinkService({

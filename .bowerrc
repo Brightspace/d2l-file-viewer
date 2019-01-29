@@ -1,7 +1,7 @@
 {
 	"registry": {
 		"search": [
-			"https://ro-bower-d2l-file-viewer:mjQ63EVnKvAx2BL8tgUfmb_cX_Eh7w0CTKIYjcL0Ift1GC-dQuoNRNEC1i_mQwnjpPnBNqppDtprgtcfmuvbAg@d2lartifacts.artifactoryonline.com/d2lartifacts/api/bower/bower-local",
+			"https://ro-bower-d2l-file-viewer:mjQ63EVnKvAx2BL8tgUfmb_cX_Eh7w0CTKIYjcL0Ift1GC-dQuoNRNEC1i_mQwnjpPnBNqppDtprgtcfmuvbAg@d2lartifacts.jfrog.io/d2lartifacts/api/bower/bower-local",
 			"https://registry.bower.io"
 		]
 	},

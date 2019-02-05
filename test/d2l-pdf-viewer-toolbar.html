@@ -3,10 +3,10 @@
 		<meta charset="UTF-8">
 		<title>d2l pdf viewer toolbar basic tests</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-		<script src="../../webcomponentsjs/webcomponents-lite.js"></script>
-		<script src="../../web-component-tester/browser.js"></script>
-		<script src="../../iron-test-helpers/mock-interactions.js"></script>
-		<link rel="import" href="../d2l-pdf-viewer-toolbar.html">
+		<script src="../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
+		<script src="../../wct-browser-legacy/browser.js"></script>
+		<script src="../../@polymer/iron-test-helpers/mock-interactions.js" type="module"></script>
+		<script type="module" src="../d2l-pdf-viewer-toolbar.js"></script>
 	</head>
 	<body>
 		<test-fixture id="basic">
@@ -21,77 +21,78 @@
 				</d2l-pdf-viewer-toolbar>
 			</template>
 		</test-fixture>
-		<script>
-			describe('<d2l-pdf-viewer-toolbar>', function() {
-				var toolbar;
+		<script type="module">
+import '../d2l-pdf-viewer-toolbar.js';
+describe('<d2l-pdf-viewer-toolbar>', function() {
+	var toolbar;
 
-				describe('events', function() {
-					beforeEach(function() {
-						toolbar = fixture('basic');
-					});
+	describe('events', function() {
+		beforeEach(function() {
+			toolbar = fixture('basic');
+		});
 
-					it('should fire d2l-pdf-viewer-toolbar-zoom-in when zoom in button is clicked', function(done) {
-						toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-in', function() {
-							done();
-						});
-						MockInteractions.tap(toolbar.$.zoomInButton);
-					});
-
-					it('should fire d2l-pdf-viewer-toolbar-zoom-out when zoom out button is clicked', function(done) {
-						toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-out', function() {
-							done();
-						});
-						MockInteractions.tap(toolbar.$.zoomOutButton);
-					});
-
-					it('should fire d2l-pdf-viewer-toolbar-toggle-fullscreen when fullscreen button is clicked', function(done) {
-						toolbar.addEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', function() {
-							done();
-						});
-						MockInteractions.tap(toolbar.$.fullscreenButton);
-					});
-				});
-
-				describe('properties', function() {
-					beforeEach(function() {
-						toolbar = fixture('basic');
-					});
-
-					it('should render all elements correctly', function() {
-						for (const disabledType of ['disabled', 'ariaDisabled']) {
-							expect(toolbar.$.zoomOutButton[disabledType]).to.be.false;
-							expect(toolbar.$.zoomInButton[disabledType]).to.be.false;
-							expect(toolbar.$.fullscreenButton[disabledType]).to.be.false;
-						}
-
-						expect(toolbar.$.pageNumber.textContent.trim()).to.equal('Page 4 / 10');
-					});
-
-					it('should disable the "zoom in" button when pageScale >= maxPageScale', function(done) {
-						toolbar.pageScale = toolbar.maxPageScale;
-						setTimeout(function() {
-							expect(toolbar.$.zoomInButton.ariaDisabled).to.be.true;
-							done();
-						});
-					});
-
-					it('should disable the "zoom out" button when pageScale <= minPageScale', function(done) {
-						toolbar.pageScale = toolbar.minPageScale;
-						setTimeout(function() {
-							expect(toolbar.$.zoomOutButton.ariaDisabled).to.be.true;
-							done();
-						});
-					});
-
-					it('should disable the "fullscreen" button when fullscreenAvailable is false', function(done) {
-						toolbar.fullscreenAvailable = false;
-						setTimeout(function() {
-							expect(toolbar.$.fullscreenButton.disabled).to.be.true;
-							done();
-						});
-					});
-				});
+		it('should fire d2l-pdf-viewer-toolbar-zoom-in when zoom in button is clicked', function(done) {
+			toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-in', function() {
+				done();
 			});
-		</script>
+			MockInteractions.tap(toolbar.$.zoomInButton);
+		});
+
+		it('should fire d2l-pdf-viewer-toolbar-zoom-out when zoom out button is clicked', function(done) {
+			toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-out', function() {
+				done();
+			});
+			MockInteractions.tap(toolbar.$.zoomOutButton);
+		});
+
+		it('should fire d2l-pdf-viewer-toolbar-toggle-fullscreen when fullscreen button is clicked', function(done) {
+			toolbar.addEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', function() {
+				done();
+			});
+			MockInteractions.tap(toolbar.$.fullscreenButton);
+		});
+	});
+
+	describe('properties', function() {
+		beforeEach(function() {
+			toolbar = fixture('basic');
+		});
+
+		it('should render all elements correctly', function() {
+			for (const disabledType of ['disabled', 'ariaDisabled']) {
+				expect(toolbar.$.zoomOutButton[disabledType]).to.be.false;
+				expect(toolbar.$.zoomInButton[disabledType]).to.be.false;
+				expect(toolbar.$.fullscreenButton[disabledType]).to.be.false;
+			}
+
+			expect(toolbar.$.pageNumber.textContent.trim()).to.equal('Page 4 / 10');
+		});
+
+		it('should disable the "zoom in" button when pageScale >= maxPageScale', function(done) {
+			toolbar.pageScale = toolbar.maxPageScale;
+			setTimeout(function() {
+				expect(toolbar.$.zoomInButton.ariaDisabled).to.be.true;
+				done();
+			});
+		});
+
+		it('should disable the "zoom out" button when pageScale <= minPageScale', function(done) {
+			toolbar.pageScale = toolbar.minPageScale;
+			setTimeout(function() {
+				expect(toolbar.$.zoomOutButton.ariaDisabled).to.be.true;
+				done();
+			});
+		});
+
+		it('should disable the "fullscreen" button when fullscreenAvailable is false', function(done) {
+			toolbar.fullscreenAvailable = false;
+			setTimeout(function() {
+				expect(toolbar.$.fullscreenButton.disabled).to.be.true;
+				done();
+			});
+		});
+	});
+});
+</script>
 	</body>
 </html>

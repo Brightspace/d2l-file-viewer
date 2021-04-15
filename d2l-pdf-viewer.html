@@ -4,8 +4,8 @@
 <link rel="import" href="d2l-pdf-viewer-toolbar.html">
 <link rel="import" href="d2l-pdf-viewer-progress-bar.html">
 
-<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.0.943/build/pdf.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.0.943/web/pdf_viewer.js"></script>
+<script src="https://s.brightspace.com/lib/pdf.js/2.0.943/build/pdf.min.js"></script>
+<script src="https://s.brightspace.com/lib/pdf.js/2.0.943/web/pdf_viewer.js"></script>
 
 <dom-module id="d2l-pdf-viewer">
 	<template strip-whitespace>
@@ -550,7 +550,7 @@
 
 				pdfjsLib.GlobalWorkerOptions.workerSrc =
 					this.pdfJsWorkerSrc ||
-					'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.0.943/build/pdf.worker.min.js';
+					'https://s.brightspace.com/lib/pdf.js/2.0.943/build/pdf.worker.min.js';
 
 				// (Optionally) enable hyperlinks within PDF files.
 				this._pdfLinkService = new pdfjsViewer.PDFLinkService({

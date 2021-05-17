@@ -3,6 +3,10 @@
 
 
 
+## Deprecated
+
+This component is deprecated and should not be used to display pdf files. Use [d2l-pdf-viewer](https://github.com/Brightspace/d2l-pdf-viewer) instead.
+
 ## Installation
 
 `d2l-file-viewer` can be installed from [Bower][bower-url]:
